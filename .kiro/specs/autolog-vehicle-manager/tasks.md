@@ -6,7 +6,7 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
 
 ## Tasks
 
-- [~] 1. Project scaffolding and dependency setup
+- [-] 1. Project scaffolding and dependency setup
   - Create the Flutter project targeting Android with Dart null safety enabled
   - Write `pubspec.yaml` with exact version pins for: `flutter_riverpod`, `hive_flutter`, `hive_generator`, `build_runner`, `shared_preferences`, `flutter_local_notifications`, `intl`, `fl_chart`, `image_picker`, `file_picker`, `path_provider`, `permission_handler`, `go_router`, `uuid`, `crypto`, `fast_check`
   - Declare asset entries for fonts, images, and `assets/data/vehicle_database.json`
@@ -201,51 +201,51 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
 - [ ] 20. Settings and About screens
   - [~] 20.1 Implement `screens/settings/settings_screen.dart` with toggles and actions for: dark/light mode, currency symbol, distance unit, export backup, import backup, reset all data (with confirmation dialog), PIN lock enable/disable/change, and navigation to About
     - _Requirements: 14.1, 14.2, 14.3, 14.5, 14.6, 14.7, 14.8_
-  - [ ] 20.2 Implement `screens/settings/about_screen.dart` displaying app name, version, and tagline "Track Every Mile"
+  - [~] 20.2 Implement `screens/settings/about_screen.dart` displaying app name, version, and tagline "Track Every Mile"
     - _Requirements: 14.9_
-  - [ ] 20.3 Wire distance unit change to convert all displayed odometer and distance values throughout the app via `UnitConverter`
+  - [~] 20.3 Wire distance unit change to convert all displayed odometer and distance values throughout the app via `UnitConverter`
     - _Requirements: 14.4_
 
-- [ ] 21. Shared widgets
+- [~] 21. Shared widgets
   - Implement all reusable widgets: `widgets/vehicle_card.dart`, `widgets/log_tile.dart`, `widgets/stat_card.dart`, `widgets/empty_state.dart`, `widgets/skeleton_loader.dart`, and `widgets/confirm_dialog.dart`
   - Ensure rounded cards, consistent spacing, and Material 3 styling throughout
   - _Requirements: 17.2, 17.3, 17.4, 17.6_
 
-- [ ] 22. Checkpoint — all screens and widgets
+- [~] 22. Checkpoint — all screens and widgets
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 23. Widget tests
-  - [ ] 23.1 Write widget tests for `HomeScreen` (empty state, populated state, pull-to-refresh)
+  - [~] 23.1 Write widget tests for `HomeScreen` (empty state, populated state, pull-to-refresh)
     - Use `ProviderScope` overrides to inject mock repositories
     - _Requirements: 3.1, 3.2, 3.5_
-  - [ ] 23.2 Write widget tests for `VehicleDetailScreen` (tab navigation, correct data per tab)
+  - [~] 23.2 Write widget tests for `VehicleDetailScreen` (tab navigation, correct data per tab)
     - _Requirements: 5.11_
-  - [ ] 23.3 Write widget tests for `AddEditFuelLogScreen` (form validation, save triggers provider update)
+  - [~] 23.3 Write widget tests for `AddEditFuelLogScreen` (form validation, save triggers provider update)
     - _Requirements: 7.1, 7.2_
-  - [ ] 23.4 Write widget tests for `PinLockScreen` (correct PIN navigates away, incorrect PIN increments counter, lockout after 5 attempts)
+  - [~] 23.4 Write widget tests for `PinLockScreen` (correct PIN navigates away, incorrect PIN increments counter, lockout after 5 attempts)
     - _Requirements: 16.1, 16.2, 16.3_
-  - [ ] 23.5 Write widget tests for `AnalyticsScreen` (empty state placeholders, chart renders with 2+ data points)
+  - [~] 23.5 Write widget tests for `AnalyticsScreen` (empty state placeholders, chart renders with 2+ data points)
     - _Requirements: 12.3_
 
 - [ ] 24. Integration tests
-  - [ ] 24.1 Write integration test: full onboarding → add vehicle → add fuel log → verify home dashboard totals
+  - [~] 24.1 Write integration test: full onboarding → add vehicle → add fuel log → verify home dashboard totals
     - _Requirements: 2.2, 2.4, 5.2, 7.1, 3.1_
-  - [ ] 24.2 Write integration test: export backup → clear data → import backup → verify data restored
+  - [~] 24.2 Write integration test: export backup → clear data → import backup → verify data restored
     - _Requirements: 15.1, 15.2, 15.5_
-  - [ ] 24.3 Write integration test: add document with expiry → verify two reminders created in Reminder Center
+  - [~] 24.3 Write integration test: add document with expiry → verify two reminders created in Reminder Center
     - _Requirements: 10.4, 11.3_
-  - [ ] 24.4 Write integration test: enable PIN → relaunch app → verify PIN screen shown → enter correct PIN → verify home screen
+  - [~] 24.4 Write integration test: enable PIN → relaunch app → verify PIN screen shown → enter correct PIN → verify home screen
     - _Requirements: 16.1, 16.2_
-  - [ ] 24.5 Write performance test: populate 10,000 fuel log entries via direct Hive writes; assert `FuelLogRepository.getAll()` completes in under 300 ms
+  - [~] 24.5 Write performance test: populate 10,000 fuel log entries via direct Hive writes; assert `FuelLogRepository.getAll()` completes in under 300 ms
     - _Requirements: 17.9_
 
-- [ ] 25. Release APK build
+- [~] 25. Release APK build
   - Configure `android/app/build.gradle` with a release signing config (keystore or debug key for CI)
   - Run `flutter build apk --release` and confirm the build completes without errors
   - Verify the APK installs and launches on an Android emulator or device
   - _Requirements: 18.6_
 
-- [ ] 26. Final checkpoint — full test suite and release build
+- [~] 26. Final checkpoint — full test suite and release build
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes
