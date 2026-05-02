@@ -1,4 +1,5 @@
 /// Barrel export for all Riverpod providers.
+export 'pin_provider.dart';
 export 'settings_provider.dart';
 export 'vehicle_provider.dart';
 export 'fuel_log_provider.dart';
