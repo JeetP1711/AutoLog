@@ -35,16 +35,16 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
     - For each model type, generate random instances, write to a temporary Hive box, close and reopen the box, read back, and assert all field values are equal to the originals
     - **Validates: Requirements 1.3**
 
-- [ ] 4. Data layer — repositories and Hive box initialisation
+- [x] 4. Data layer — repositories and Hive box initialisation
   - [x] 4.1 Implement `data/hive_boxes.dart` with box name constants and a single `HiveBoxes.init()` method that opens all six boxes
     - _Requirements: 1.1, 1.3_
-  - [-] 4.2 Implement `data/vehicle_repository.dart`, `data/fuel_log_repository.dart`, `data/service_log_repository.dart`, `data/expense_log_repository.dart`, `data/document_repository.dart`, and `data/reminder_repository.dart`
+  - [x] 4.2 Implement `data/vehicle_repository.dart`, `data/fuel_log_repository.dart`, `data/service_log_repository.dart`, `data/expense_log_repository.dart`, `data/document_repository.dart`, and `data/reminder_repository.dart`
     - Each exposes `getAll`, `getById`, `save`, `delete`, and `watchAll` (reactive stream)
     - _Requirements: 1.1, 1.3, 5.8, 7.6, 8.5, 9.4, 10.5, 11.4_
-  - [~] 4.3 Implement `data/vehicle_database.dart` that loads `assets/data/vehicle_database.json` once at startup, caches it in memory, and exposes `getBrands()`, `getModels(brand)`, and `getYears(brand, model)`
+  - [x] 4.3 Implement `data/vehicle_database.dart` that loads `assets/data/vehicle_database.json` once at startup, caches it in memory, and exposes `getBrands()`, `getModels(brand)`, and `getYears(brand, model)`
     - Populate the JSON asset with all required Indian brands and their models/years
     - _Requirements: 5.4, 5.5, 5.6_
-  - [~] 4.4 Write property test for vehicle database lookup consistency (Property 8)
+  - [x] 4.4 Write property test for vehicle database lookup consistency (Property 8)
     - **Property 8: Vehicle database lookup consistency**
     - For every brand in the bundled JSON, assert `getModels(brand)` returns a non-empty list; for every brand+model pair, assert `getYears(brand, model)` returns a non-empty list of integers; confirm no network call is made
     - **Validates: Requirements 5.4, 5.5**
