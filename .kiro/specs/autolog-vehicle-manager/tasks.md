@@ -25,10 +25,10 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
     - _Requirements: 1.5, 18.1_
 
 - [ ] 3. Core domain models and Hive adapters
-  - [-] 3.1 Implement all model files in `models/`: `Vehicle`, `FuelLog`, `ServiceLog`, `ExpenseLog`, `Document`, `Reminder`, `AppSettings` with `@HiveType`/`@HiveField` annotations, `copyWith`, `toJson`, and `fromJson`
+  - [x] 3.1 Implement all model files in `models/`: `Vehicle`, `FuelLog`, `ServiceLog`, `ExpenseLog`, `Document`, `Reminder`, `AppSettings` with `@HiveType`/`@HiveField` annotations, `copyWith`, `toJson`, and `fromJson`
     - Include all enumerations: `FuelType`, `VehicleType`, `DistanceUnit`, `ReminderType`
     - _Requirements: 5.2, 5.7, 6.1, 7.1, 8.1, 9.1, 10.1, 11.1, 18.2_
-  - [~] 3.2 Run `build_runner` to generate `*.g.dart` TypeAdapter files; commit generated files
+  - [-] 3.2 Run `build_runner` to generate `*.g.dart` TypeAdapter files; commit generated files
     - _Requirements: 18.5_
   - [~] 3.3 Write property test for Hive persistence round-trip (Property 9)
     - **Property 9: Hive persistence round-trip**
