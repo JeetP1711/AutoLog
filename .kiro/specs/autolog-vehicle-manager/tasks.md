@@ -49,7 +49,7 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
     - For every brand in the bundled JSON, assert `getModels(brand)` returns a non-empty list; for every brand+model pair, assert `getYears(brand, model)` returns a non-empty list of integers; confirm no network call is made
     - **Validates: Requirements 5.4, 5.5**
 
-- [ ] 5. Pure utility functions
+- [x] 5. Pure utility functions
   - [x] 5.1 Implement `utils/mileage_calculator.dart` with `MileageCalculator.calculate()` (all fuel type branches, zero-quantity guard, negative-distance guard) and `MileageCalculator.distance()`
     - _Requirements: 6.4, 6.5, 7.3, 7.4_
   - [x] 5.2 Write property test for mileage calculation chain (Property 2)
@@ -64,23 +64,23 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
     - **Validates: Requirements 14.4**
   - [x] 5.5 Implement `utils/validators.dart` with field validators for all required fields (nickname, number plate, odometer, quantity, price, date, PIN)
     - _Requirements: 5.2, 7.1, 8.1, 9.1_
-  - [-] 5.6 Write property test for whitespace-only input rejection (Property 4)
+  - [x] 5.6 Write property test for whitespace-only input rejection (Property 4)
     - **Property 4: Whitespace-only inputs are rejected**
     - Generate strings composed entirely of spaces, tabs, and newlines; assert every field validator returns invalid for these inputs; assert no Vehicle, FuelLog, ServiceLog, or ExpenseLog can be created with a whitespace-only required field
     - **Validates: Requirements 5.2, 7.1, 8.1, 9.1**
-  - [~] 5.7 Implement `utils/date_formatter.dart` and `utils/currency_formatter.dart`
+  - [x] 5.7 Implement `utils/date_formatter.dart` and `utils/currency_formatter.dart`
     - _Requirements: 14.2, 17.2_
 
-- [~] 6. Checkpoint — core utilities and data layer
+- [x] 6. Checkpoint — core utilities and data layer
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 7. Services layer
-  - [~] 7.1 Implement `services/pin_service.dart` storing the PIN as a SHA-256 hash in SharedPreferences; expose `setPin`, `verifyPin`, `clearPin`, and `isPinEnabled`
+  - [x] 7.1 Implement `services/pin_service.dart` storing the PIN as a SHA-256 hash in SharedPreferences; expose `setPin`, `verifyPin`, `clearPin`, and `isPinEnabled`
     - _Requirements: 16.1, 16.4, 16.5_
-  - [~] 7.2 Write unit tests for `PinService`
+  - [x] 7.2 Write unit tests for `PinService`
     - Test hash correctness, verify-correct, verify-incorrect, and that plaintext PIN is never stored
     - _Requirements: 16.4_
-  - [~] 7.3 Implement `services/notification_service.dart` wrapping `flutter_local_notifications`; expose `init`, `scheduleReminder`, `cancelReminder`, and `cancelAllForVehicle`
+  - [-] 7.3 Implement `services/notification_service.dart` wrapping `flutter_local_notifications`; expose `init`, `scheduleReminder`, `cancelReminder`, and `cancelAllForVehicle`
     - Handle Android 13+ `POST_NOTIFICATIONS` permission; show persistent banner in Reminder Center if denied
     - _Requirements: 11.1, 11.2, 11.5, 11.6_
   - [~] 7.4 Write property test for notification payload completeness (Property 11)
