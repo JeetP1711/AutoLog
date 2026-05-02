@@ -6,7 +6,7 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
 
 ## Tasks
 
-- [-] 1. Project scaffolding and dependency setup
+- [x] 1. Project scaffolding and dependency setup
   - Create the Flutter project targeting Android with Dart null safety enabled
   - Write `pubspec.yaml` with exact version pins for: `flutter_riverpod`, `hive_flutter`, `hive_generator`, `build_runner`, `shared_preferences`, `flutter_local_notifications`, `intl`, `fl_chart`, `image_picker`, `file_picker`, `path_provider`, `permission_handler`, `go_router`, `uuid`, `crypto`, `fast_check`
   - Declare asset entries for fonts, images, and `assets/data/vehicle_database.json`
@@ -15,7 +15,7 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
   - _Requirements: 18.1, 18.3, 18.4, 18.5_
 
 - [ ] 2. Theme and app entry point
-  - [~] 2.1 Implement `theme/app_theme.dart` with Material 3 dark graphite + blue accent `ThemeData` and a matching light `ThemeData`
+  - [-] 2.1 Implement `theme/app_theme.dart` with Material 3 dark graphite + blue accent `ThemeData` and a matching light `ThemeData`
     - Define colour scheme, typography, card shape (rounded), and consistent spacing constants
     - _Requirements: 17.1, 17.2_
   - [~] 2.2 Implement `theme/theme_controller.dart` as a Riverpod `StateNotifier` that reads/writes `ThemeMode` from SharedPreferences
