@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
@@ -51,272 +52,140 @@ Directory _createTempDir() {
   return Directory.systemTemp.createTempSync('hive_persistence_test_');
 }
 
-/// Converts a TZDateTime (returned by kiri_check's dateTime()) to a plain
-/// UTC DateTime so that Hive round-trips are lossless (Hive stores DateTime
-/// as microseconds since epoch, which is timezone-agnostic).
-DateTime _toUtc(DateTime dt) =>
-    DateTime.fromMicrosecondsSinceEpoch(dt.microsecondsSinceEpoch, isUtc: true);
-
-/// Nullable helper: generates either null or a value from [inner] with equal
-/// probability.
-Arbitrary<T?> nullable<T>(Arbitrary<T> inner) =>
-    (frequency([
-      (1, null_()),
-      (1, inner),
-    ]) as Arbitrary<dynamic>)
-        .map((v) => v as T?);
-
 // ---------------------------------------------------------------------------
-// Custom arbitraries
+// Seeded random helpers
+//
+// kiri_check's `build()` arbitrary receives no seed, so we use a shared
+// Random seeded from the test framework's implicit randomness. Each call to
+// `build()` produces one instance; kiri_check calls the builder repeatedly
+// with different internal seeds, giving us the variety we need.
 // ---------------------------------------------------------------------------
 
-Arbitrary<FuelType> _fuelTypeArb() =>
-    constantFrom(FuelType.values);
+final _rng = math.Random();
 
-Arbitrary<VehicleType> _vehicleTypeArb() =>
-    constantFrom(VehicleType.values);
+/// Returns a random alphanumeric string of length 1–20.
+String _randString([int maxLen = 20]) {
+  const chars =
+      'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  final len = 1 + _rng.nextInt(maxLen);
+  return List.generate(len, (_) => chars[_rng.nextInt(chars.length)]).join();
+}
 
-Arbitrary<ReminderType> _reminderTypeArb() =>
-    constantFrom(ReminderType.values);
+/// Returns a random nullable string (50 % chance of null).
+String? _randNullableString() => _rng.nextBool() ? _randString() : null;
 
-/// Non-empty alphanumeric ASCII string (avoids null bytes that Hive may reject).
-Arbitrary<String> _safeString() => string(
-      minLength: 1,
-      maxLength: 40,
-      characterSet: CharacterSet.alphanum(CharacterEncoding.ascii),
+/// Returns a random positive double in [0.01, 1_000_000].
+double _randDouble() => 0.01 + _rng.nextDouble() * 999999.99;
+
+/// Returns a random nullable double (50 % chance of null).
+double? _randNullableDouble() => _rng.nextBool() ? _randDouble() : null;
+
+/// Returns a random UTC DateTime between 2000-01-01 and 2099-12-31.
+/// Stored as UTC so Hive round-trips are lossless (Hive stores microseconds
+/// since epoch, which is timezone-agnostic).
+DateTime _randDateTime() {
+  final minMs = DateTime.utc(2000).microsecondsSinceEpoch;
+  final maxMs = DateTime.utc(2099, 12, 31, 23, 59, 59).microsecondsSinceEpoch;
+  final us = minMs + (_rng.nextDouble() * (maxMs - minMs)).toInt();
+  return DateTime.fromMicrosecondsSinceEpoch(us, isUtc: true);
+}
+
+/// Returns a random nullable DateTime (50 % chance of null).
+DateTime? _randNullableDateTime() => _rng.nextBool() ? _randDateTime() : null;
+
+T _randEnum<T>(List<T> values) => values[_rng.nextInt(values.length)];
+
+// ---------------------------------------------------------------------------
+// Model builders
+// ---------------------------------------------------------------------------
+
+Vehicle _buildVehicle() => Vehicle(
+      id: _randString(),
+      nickname: _randString(),
+      numberPlate: _randString(),
+      brand: _randString(),
+      model: _randString(),
+      year: 1900 + _rng.nextInt(200),
+      fuelType: _randEnum(FuelType.values),
+      vehicleType: _randEnum(VehicleType.values),
+      odometerKm: _randDouble(),
+      createdAt: _randDateTime(),
+      purchaseDate: _randNullableDateTime(),
+      photoPath: _randNullableString(),
+      notes: _randNullableString(),
+      customFuelType: _randNullableString(),
+      customFuelUnit: _randNullableString(),
     );
 
-Arbitrary<String?> _nullableString() => nullable(_safeString());
-
-/// Positive finite double in a reasonable range.
-Arbitrary<double> _positiveDouble() =>
-    float(min: 0.01, max: 1000000.0, nan: false, infinity: false);
-
-Arbitrary<double?> _nullableDouble() => nullable(_positiveDouble());
-
-/// DateTime mapped to UTC to ensure round-trip equality.
-Arbitrary<DateTime> _dateTimeArb() =>
-    dateTime(
-      min: DateTime(2000),
-      max: DateTime(2099, 12, 31),
-    ).map(_toUtc);
-
-Arbitrary<DateTime?> _nullableDateTimeArb() => nullable(_dateTimeArb());
-
-// --- Vehicle ---
-
-Arbitrary<Vehicle> _vehicleArb() => combine8(
-      _safeString(), // id
-      _safeString(), // nickname
-      _safeString(), // numberPlate
-      _safeString(), // brand
-      _safeString(), // model
-      integer(min: 1900, max: 2099), // year
-      _fuelTypeArb(),
-      _vehicleTypeArb(),
-    ).flatMap(
-      (t) => combine8(
-        constant(t.$1), // id
-        constant(t.$2), // nickname
-        constant(t.$3), // numberPlate
-        constant(t.$4), // brand
-        constant(t.$5), // model
-        constant(t.$6), // year
-        constant(t.$7), // fuelType
-        constant(t.$8), // vehicleType
-      ).flatMap(
-        (inner) => combine8(
-          constant(inner.$1),
-          constant(inner.$2),
-          constant(inner.$3),
-          constant(inner.$4),
-          constant(inner.$5),
-          constant(inner.$6),
-          constant(inner.$7),
-          constant(inner.$8),
-        ).flatMap(
-          (_) => combine8(
-            _positiveDouble(), // odometerKm
-            _dateTimeArb(), // createdAt
-            _nullableDateTimeArb(), // purchaseDate
-            _nullableString(), // photoPath
-            _nullableString(), // notes
-            _nullableString(), // customFuelType
-            _nullableString(), // customFuelUnit
-            constant(t), // carry original tuple
-          ).map(
-            (extra) => Vehicle(
-              id: t.$1,
-              nickname: t.$2,
-              numberPlate: t.$3,
-              brand: t.$4,
-              model: t.$5,
-              year: t.$6,
-              fuelType: t.$7,
-              vehicleType: t.$8,
-              odometerKm: extra.$1,
-              createdAt: extra.$2,
-              purchaseDate: extra.$3,
-              photoPath: extra.$4,
-              notes: extra.$5,
-              customFuelType: extra.$6,
-              customFuelUnit: extra.$7,
-            ),
-          ),
-        ),
-      ),
+FuelLog _buildFuelLog() => FuelLog(
+      id: _randString(),
+      vehicleId: _randString(),
+      date: _randDateTime(),
+      quantity: _randDouble(),
+      totalPrice: _randDouble(),
+      odometerKm: _randDouble(),
+      isFullTank: _rng.nextBool(),
+      stationName: _randNullableString(),
+      notes: _randNullableString(),
+      mileage: _randNullableDouble(),
+      distanceKm: _randNullableDouble(),
     );
 
-// --- FuelLog ---
-
-Arbitrary<FuelLog> _fuelLogArb() => combine8(
-      _safeString(), // id
-      _safeString(), // vehicleId
-      _dateTimeArb(), // date
-      _positiveDouble(), // quantity
-      _positiveDouble(), // totalPrice
-      _positiveDouble(), // odometerKm
-      boolean(), // isFullTank
-      _nullableString(), // stationName
-    ).flatMap(
-      (t) => combine3(
-        _nullableString(), // notes
-        _nullableDouble(), // mileage
-        _nullableDouble(), // distanceKm
-      ).map(
-        (extra) => FuelLog(
-          id: t.$1,
-          vehicleId: t.$2,
-          date: t.$3,
-          quantity: t.$4,
-          totalPrice: t.$5,
-          odometerKm: t.$6,
-          isFullTank: t.$7,
-          stationName: t.$8,
-          notes: extra.$1,
-          mileage: extra.$2,
-          distanceKm: extra.$3,
-        ),
-      ),
+ServiceLog _buildServiceLog() => ServiceLog(
+      id: _randString(),
+      vehicleId: _randString(),
+      date: _randDateTime(),
+      serviceType: _randString(),
+      cost: _randDouble(),
+      odometerKm: _randNullableDouble(),
+      garageName: _randNullableString(),
+      notes: _randNullableString(),
+      nextDueDate: _randNullableDateTime(),
+      nextDueOdometerKm: _randNullableDouble(),
     );
 
-// --- ServiceLog ---
-
-Arbitrary<ServiceLog> _serviceLogArb() => combine8(
-      _safeString(), // id
-      _safeString(), // vehicleId
-      _dateTimeArb(), // date
-      _safeString(), // serviceType
-      _positiveDouble(), // cost
-      _nullableDouble(), // odometerKm
-      _nullableString(), // garageName
-      _nullableString(), // notes
-    ).flatMap(
-      (t) => combine2(
-        _nullableDateTimeArb(), // nextDueDate
-        _nullableDouble(), // nextDueOdometerKm
-      ).map(
-        (extra) => ServiceLog(
-          id: t.$1,
-          vehicleId: t.$2,
-          date: t.$3,
-          serviceType: t.$4,
-          cost: t.$5,
-          odometerKm: t.$6,
-          garageName: t.$7,
-          notes: t.$8,
-          nextDueDate: extra.$1,
-          nextDueOdometerKm: extra.$2,
-        ),
-      ),
+ExpenseLog _buildExpenseLog() => ExpenseLog(
+      id: _randString(),
+      vehicleId: _randString(),
+      date: _randDateTime(),
+      category: _randString(),
+      amount: _randDouble(),
+      notes: _randNullableString(),
     );
 
-// --- ExpenseLog ---
-
-Arbitrary<ExpenseLog> _expenseLogArb() => combine6(
-      _safeString(), // id
-      _safeString(), // vehicleId
-      _dateTimeArb(), // date
-      _safeString(), // category
-      _positiveDouble(), // amount
-      _nullableString(), // notes
-    ).map(
-      (t) => ExpenseLog(
-        id: t.$1,
-        vehicleId: t.$2,
-        date: t.$3,
-        category: t.$4,
-        amount: t.$5,
-        notes: t.$6,
-      ),
+Document _buildDocument() => Document(
+      id: _randString(),
+      vehicleId: _randString(),
+      documentType: _randString(),
+      expiryDate: _randDateTime(),
+      issueDate: _randNullableDateTime(),
+      documentNumber: _randNullableString(),
+      filePath: _randNullableString(),
     );
 
-// --- Document ---
-
-Arbitrary<Document> _documentArb() => combine7(
-      _safeString(), // id
-      _safeString(), // vehicleId
-      _safeString(), // documentType
-      _dateTimeArb(), // expiryDate
-      _nullableDateTimeArb(), // issueDate
-      _nullableString(), // documentNumber
-      _nullableString(), // filePath
-    ).map(
-      (t) => Document(
-        id: t.$1,
-        vehicleId: t.$2,
-        documentType: t.$3,
-        expiryDate: t.$4,
-        issueDate: t.$5,
-        documentNumber: t.$6,
-        filePath: t.$7,
-      ),
-    );
-
-// --- Reminder ---
-
-Arbitrary<Reminder> _reminderArb() => combine8(
-      _safeString(), // id
-      _safeString(), // vehicleId
-      _safeString(), // title
-      _safeString(), // body
-      _reminderTypeArb(),
-      boolean(), // isDismissed
-      _dateTimeArb(), // createdAt
-      _nullableDateTimeArb(), // dueDate
-    ).flatMap(
-      (t) => combine2(
-        _nullableDouble(), // dueOdometerKm
-        _nullableString(), // sourceId
-      ).map(
-        (extra) => Reminder(
-          id: t.$1,
-          vehicleId: t.$2,
-          title: t.$3,
-          body: t.$4,
-          reminderType: t.$5,
-          isDismissed: t.$6,
-          createdAt: t.$7,
-          dueDate: t.$8,
-          dueOdometerKm: extra.$1,
-          sourceId: extra.$2,
-        ),
-      ),
+Reminder _buildReminder() => Reminder(
+      id: _randString(),
+      vehicleId: _randString(),
+      title: _randString(),
+      body: _randString(),
+      reminderType: _randEnum(ReminderType.values),
+      isDismissed: _rng.nextBool(),
+      createdAt: _randDateTime(),
+      dueDate: _randNullableDateTime(),
+      dueOdometerKm: _randNullableDouble(),
+      sourceId: _randNullableString(),
     );
 
 // ---------------------------------------------------------------------------
 // Round-trip helper
 // ---------------------------------------------------------------------------
 
-/// Writes [value] to a fresh Hive box under [boxName], closes the box,
-/// reopens it, reads the value back, and returns it.
-Future<T> _roundTrip<T>(
-  String boxName,
-  T value,
-  Directory dir,
-) async {
-  // Use a unique box name per call to avoid cross-test contamination.
-  final uniqueBox = '${boxName}_${DateTime.now().microsecondsSinceEpoch}';
+/// Writes [value] to a fresh Hive box, closes the box, reopens it, reads the
+/// value back, and returns it.  A unique box name is used per call to avoid
+/// cross-iteration contamination.
+Future<T> _roundTrip<T>(String boxPrefix, T value, Directory dir) async {
+  final uniqueBox =
+      '${boxPrefix}_${DateTime.now().microsecondsSinceEpoch}_${_rng.nextInt(1 << 30)}';
 
   Hive.init(dir.path);
 
@@ -341,7 +210,6 @@ void main() {
     _registerAdapters();
   });
 
-  // Each property test gets its own temp directory, cleaned up in tearDown.
   late Directory tempDir;
 
   setUp(() {
@@ -349,7 +217,6 @@ void main() {
   });
 
   tearDown(() async {
-    // Close any lingering boxes before deleting the directory.
     await Hive.close();
     try {
       tempDir.deleteSync(recursive: true);
@@ -365,14 +232,11 @@ void main() {
   group('Property 9: Hive persistence round-trip', () {
     property('Vehicle round-trip preserves all field values', () {
       forAll(
-        _vehicleArb(),
+        build(_buildVehicle),
         maxExamples: 50,
         (original) async {
-          final restored = await _roundTrip<Vehicle>(
-            'vehicles',
-            original,
-            tempDir,
-          );
+          final restored =
+              await _roundTrip<Vehicle>('vehicles', original, tempDir);
 
           expect(restored.id, equals(original.id));
           expect(restored.nickname, equals(original.nickname));
@@ -396,14 +260,11 @@ void main() {
 
     property('FuelLog round-trip preserves all field values', () {
       forAll(
-        _fuelLogArb(),
+        build(_buildFuelLog),
         maxExamples: 50,
         (original) async {
-          final restored = await _roundTrip<FuelLog>(
-            'fuel_logs',
-            original,
-            tempDir,
-          );
+          final restored =
+              await _roundTrip<FuelLog>('fuel_logs', original, tempDir);
 
           expect(restored.id, equals(original.id));
           expect(restored.vehicleId, equals(original.vehicleId));
@@ -423,14 +284,11 @@ void main() {
 
     property('ServiceLog round-trip preserves all field values', () {
       forAll(
-        _serviceLogArb(),
+        build(_buildServiceLog),
         maxExamples: 50,
         (original) async {
-          final restored = await _roundTrip<ServiceLog>(
-            'service_logs',
-            original,
-            tempDir,
-          );
+          final restored =
+              await _roundTrip<ServiceLog>('service_logs', original, tempDir);
 
           expect(restored.id, equals(original.id));
           expect(restored.vehicleId, equals(original.vehicleId));
@@ -441,7 +299,8 @@ void main() {
           expect(restored.garageName, equals(original.garageName));
           expect(restored.notes, equals(original.notes));
           expect(restored.nextDueDate, equals(original.nextDueDate));
-          expect(restored.nextDueOdometerKm, equals(original.nextDueOdometerKm));
+          expect(
+              restored.nextDueOdometerKm, equals(original.nextDueOdometerKm));
           expect(restored, equals(original));
         },
       );
@@ -449,14 +308,11 @@ void main() {
 
     property('ExpenseLog round-trip preserves all field values', () {
       forAll(
-        _expenseLogArb(),
+        build(_buildExpenseLog),
         maxExamples: 50,
         (original) async {
-          final restored = await _roundTrip<ExpenseLog>(
-            'expense_logs',
-            original,
-            tempDir,
-          );
+          final restored =
+              await _roundTrip<ExpenseLog>('expense_logs', original, tempDir);
 
           expect(restored.id, equals(original.id));
           expect(restored.vehicleId, equals(original.vehicleId));
@@ -471,14 +327,11 @@ void main() {
 
     property('Document round-trip preserves all field values', () {
       forAll(
-        _documentArb(),
+        build(_buildDocument),
         maxExamples: 50,
         (original) async {
-          final restored = await _roundTrip<Document>(
-            'documents',
-            original,
-            tempDir,
-          );
+          final restored =
+              await _roundTrip<Document>('documents', original, tempDir);
 
           expect(restored.id, equals(original.id));
           expect(restored.vehicleId, equals(original.vehicleId));
@@ -494,14 +347,11 @@ void main() {
 
     property('Reminder round-trip preserves all field values', () {
       forAll(
-        _reminderArb(),
+        build(_buildReminder),
         maxExamples: 50,
         (original) async {
-          final restored = await _roundTrip<Reminder>(
-            'reminders',
-            original,
-            tempDir,
-          );
+          final restored =
+              await _roundTrip<Reminder>('reminders', original, tempDir);
 
           expect(restored.id, equals(original.id));
           expect(restored.vehicleId, equals(original.vehicleId));
