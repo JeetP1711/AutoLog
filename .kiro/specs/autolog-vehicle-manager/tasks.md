@@ -104,13 +104,13 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
     - _Requirements: 14.1, 14.2, 14.3, 2.4, 2.5_
   - [x] 8.2 Implement `providers/vehicle_provider.dart` as an `AsyncNotifier` backed by `VehicleRepository.watchAll()`; expose add, update, and delete actions (delete cascades to all associated logs, documents, and reminders)
     - _Requirements: 5.1, 5.8, 5.9, 5.10_
-  - [~] 8.3 Implement `providers/fuel_log_provider.dart` as an `AsyncNotifier`; on save, compute distance and mileage via `MileageCalculator` and persist; on delete, recalculate the subsequent entry's mileage
+  - [x] 8.3 Implement `providers/fuel_log_provider.dart` as an `AsyncNotifier`; on save, compute distance and mileage via `MileageCalculator` and persist; on delete, recalculate the subsequent entry's mileage
     - _Requirements: 7.3, 7.4, 7.6, 7.7_
-  - [~] 8.4 Write property test for fuel log deletion mileage recalculation (Property 6)
+  - [x] 8.4 Write property test for fuel log deletion mileage recalculation (Property 6)
     - **Property 6: Fuel log deletion triggers correct mileage recalculation**
     - Generate ordered sequences of 3+ fuel logs for the same vehicle with strictly increasing odometers; delete the middle entry via the provider; assert the immediately following entry's mileage equals `(followingOdometer − precedingOdometer) / followingQuantity`
     - **Validates: Requirements 7.7**
-  - [~] 8.5 Implement `providers/service_log_provider.dart`; on save, if `nextDueDate` or `nextDueOdometerKm` is set, create exactly one `Reminder` via `ReminderRepository` and schedule it via `NotificationService`
+  - [-] 8.5 Implement `providers/service_log_provider.dart`; on save, if `nextDueDate` or `nextDueOdometerKm` is set, create exactly one `Reminder` via `ReminderRepository` and schedule it via `NotificationService`
     - _Requirements: 8.4_
   - [~] 8.6 Write property test for automatic reminder creation (Property 5 — service log branch)
     - **Property 5: Automatic reminder creation (service log)**
