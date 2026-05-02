@@ -177,16 +177,16 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
   - On save, trigger automatic reminder creation via `DocumentProvider`; show snackbar on success
   - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 17.5_
 
-- [ ] 17. Unified Logs screen
+- [x] 17. Unified Logs screen
   - [x] 17.1 Implement `screens/logs/logs_screen.dart` displaying a combined chronological timeline of all log types across all vehicles, sorted by date descending; show log type icon and vehicle name on each tile
     - _Requirements: 13.1_
   - [x] 17.2 Add search bar (free-text match on notes, garage names, station names) and filter controls (date range, vehicle, category); update the list reactively as filters change; show empty state when no results match
     - _Requirements: 13.2, 13.3, 13.4_
-  - [ ] 17.3 Write property test for log filter consistency (Property 7)
+  - [x] 17.3 Write property test for log filter consistency (Property 7)
     - **Property 7: Log filter consistency**
     - Generate random log lists with embedded search terms; apply arbitrary combinations of search query, date range, vehicle filter, and category filter; assert every returned entry satisfies all active criteria and no matching entry is absent from the results
     - **Validates: Requirements 13.2, 13.3**
-  - [ ] 17.4 Implement swipe-to-delete on log tiles with confirmation dialog
+  - [x] 17.4 Implement swipe-to-delete on log tiles with confirmation dialog
     - _Requirements: 13.5, 17.6, 17.7_
 
 - [ ] 18. Reminder Center screen
