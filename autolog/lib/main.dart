@@ -3,6 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'models/document.dart';
+import 'models/enums.dart';
+import 'models/expense_log.dart';
+import 'models/fuel_log.dart';
+import 'models/reminder.dart';
+import 'models/service_log.dart';
+import 'models/vehicle.dart';
 import 'router.dart';
 import 'theme/app_colors.dart';
 import 'theme/app_theme.dart';
@@ -17,7 +24,18 @@ Future<void> main() async {
   // Initialise Hive
   await Hive.initFlutter();
 
-  // TODO: Register Hive adapters here
+  // Register enum adapters
+  Hive.registerAdapter(FuelTypeAdapter());
+  Hive.registerAdapter(VehicleTypeAdapter());
+  Hive.registerAdapter(DistanceUnitAdapter());
+  Hive.registerAdapter(ReminderTypeAdapter());
+  // Register model adapters
+  Hive.registerAdapter(VehicleAdapter());
+  Hive.registerAdapter(FuelLogAdapter());
+  Hive.registerAdapter(ServiceLogAdapter());
+  Hive.registerAdapter(ExpenseLogAdapter());
+  Hive.registerAdapter(DocumentAdapter());
+  Hive.registerAdapter(ReminderAdapter());
 
   // Open all Hive boxes
   bool dbInitFailed = false;
