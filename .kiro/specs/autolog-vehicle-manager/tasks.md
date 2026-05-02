@@ -99,7 +99,7 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
     - Generate random app states (arbitrary combinations of vehicles, fuel logs, service logs, expense logs, documents, reminders, and settings); export to JSON; import from JSON; assert structural equality of all records and all field values
     - **Validates: Requirements 15.4**
 
-- [ ] 8. Riverpod providers
+- [x] 8. Riverpod providers
   - [x] 8.1 Implement `providers/settings_provider.dart` as a `StateNotifier` backed by SharedPreferences; expose currency symbol, distance unit, theme mode, PIN enabled flag, and onboarding completed flag
     - _Requirements: 14.1, 14.2, 14.3, 2.4, 2.5_
   - [x] 8.2 Implement `providers/vehicle_provider.dart` as an `AsyncNotifier` backed by `VehicleRepository.watchAll()`; expose add, update, and delete actions (delete cascades to all associated logs, documents, and reminders)
@@ -122,14 +122,14 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
     - **Property 5: Automatic reminder creation (document)**
     - Generate random documents with expiry dates more than 30 days in the future; save via provider; assert exactly two reminders are created with due dates equal to `expiryDate − 30 days` and `expiryDate − 7 days`, both strictly before the expiry date
     - **Validates: Requirements 10.4**
-  - [-] 8.9 Implement `providers/expense_log_provider.dart`, `providers/reminder_provider.dart`, and `providers/analytics_provider.dart`
+  - [x] 8.9 Implement `providers/expense_log_provider.dart`, `providers/reminder_provider.dart`, and `providers/analytics_provider.dart`
     - `analytics_provider` derives chart data from all log providers via `AnalyticsService`
     - _Requirements: 9.4, 11.3, 11.4, 12.1, 12.2_
 
-- [~] 9. Checkpoint — services and providers
+- [x] 9. Checkpoint — services and providers
   - Ensure all tests pass, ask the user if questions arise.
 
-- [~] 10. Navigation and shell
+- [-] 10. Navigation and shell
   - Implement `go_router` configuration in `main.dart` or a dedicated `router.dart`; define all routes from the design (`/splash`, `/onboarding`, `/pin`, `/home` shell with five tabs, and all nested routes)
   - Wire the bottom navigation bar (five destinations: Home, Vehicles, Logs, Analytics, Settings) with state preservation across tab switches
   - _Requirements: 4.1, 4.2, 4.3_
