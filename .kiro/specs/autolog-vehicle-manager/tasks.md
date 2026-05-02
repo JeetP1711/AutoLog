@@ -171,7 +171,7 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
   - [x] 15.3 Implement `screens/logs/add_edit_expense_log_screen.dart` with required fields (date, category, amount) and optional notes; validate and save via `ExpenseLogProvider`
     - _Requirements: 9.1, 9.2, 9.3, 9.4, 17.5_
 
-- [-] 16. Documents screen
+- [x] 16. Documents screen
   - Implement `screens/documents/document_list_screen.dart` and `screens/documents/add_edit_document_screen.dart`
   - Required fields: document type, expiry date; optional: issue date, document number, file/photo picker
   - On save, trigger automatic reminder creation via `DocumentProvider`; show snackbar on success
