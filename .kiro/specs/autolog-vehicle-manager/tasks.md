@@ -118,11 +118,11 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
     - **Validates: Requirements 8.4**
   - [x] 8.7 Implement `providers/document_provider.dart`; on save with an expiry date more than 30 days in the future, create exactly two reminders at `expiryDate − 30 days` and `expiryDate − 7 days`; on delete, cancel associated notifications
     - _Requirements: 10.4, 11.5_
-  - [~] 8.8 Write property test for automatic reminder creation (Property 5 — document branch)
+  - [x] 8.8 Write property test for automatic reminder creation (Property 5 — document branch)
     - **Property 5: Automatic reminder creation (document)**
     - Generate random documents with expiry dates more than 30 days in the future; save via provider; assert exactly two reminders are created with due dates equal to `expiryDate − 30 days` and `expiryDate − 7 days`, both strictly before the expiry date
     - **Validates: Requirements 10.4**
-  - [~] 8.9 Implement `providers/expense_log_provider.dart`, `providers/reminder_provider.dart`, and `providers/analytics_provider.dart`
+  - [-] 8.9 Implement `providers/expense_log_provider.dart`, `providers/reminder_provider.dart`, and `providers/analytics_provider.dart`
     - `analytics_provider` derives chart data from all log providers via `AnalyticsService`
     - _Requirements: 9.4, 11.3, 11.4, 12.1, 12.2_
 
