@@ -178,9 +178,9 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
   - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 17.5_
 
 - [ ] 17. Unified Logs screen
-  - [ ] 17.1 Implement `screens/logs/logs_screen.dart` displaying a combined chronological timeline of all log types across all vehicles, sorted by date descending; show log type icon and vehicle name on each tile
+  - [x] 17.1 Implement `screens/logs/logs_screen.dart` displaying a combined chronological timeline of all log types across all vehicles, sorted by date descending; show log type icon and vehicle name on each tile
     - _Requirements: 13.1_
-  - [ ] 17.2 Add search bar (free-text match on notes, garage names, station names) and filter controls (date range, vehicle, category); update the list reactively as filters change; show empty state when no results match
+  - [x] 17.2 Add search bar (free-text match on notes, garage names, station names) and filter controls (date range, vehicle, category); update the list reactively as filters change; show empty state when no results match
     - _Requirements: 13.2, 13.3, 13.4_
   - [ ] 17.3 Write property test for log filter consistency (Property 7)
     - **Property 7: Log filter consistency**
