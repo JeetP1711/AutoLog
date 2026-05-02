@@ -156,11 +156,11 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
     - **Validates: Requirements 3.1, 3.4**
 
 - [ ] 14. Vehicle screens
-  - [-] 14.1 Implement `screens/vehicles/vehicle_list_screen.dart` with a list of `VehicleCard` widgets, a FAB to add a vehicle, and swipe-to-delete with confirmation dialog
+  - [x] 14.1 Implement `screens/vehicles/vehicle_list_screen.dart` with a list of `VehicleCard` widgets, a FAB to add a vehicle, and swipe-to-delete with confirmation dialog
     - _Requirements: 5.8, 17.6, 17.7, 17.8_
-  - [~] 14.2 Implement `screens/vehicles/add_edit_vehicle_screen.dart` with all required and optional fields; wire brand → model → year cascading dropdowns from `VehicleDatabase`; validate all required fields before save; show snackbar on success
+  - [x] 14.2 Implement `screens/vehicles/add_edit_vehicle_screen.dart` with all required and optional fields; wire brand → model → year cascading dropdowns from `VehicleDatabase`; validate all required fields before save; show snackbar on success
     - _Requirements: 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.9, 17.5_
-  - [~] 14.3 Implement `screens/vehicles/vehicle_detail_screen.dart` with six tabs: Overview, Fuel Logs, Service Logs, Expenses, Documents, and Notes; each tab shows the relevant log list with FAB and swipe-to-delete
+  - [x] 14.3 Implement `screens/vehicles/vehicle_detail_screen.dart` with six tabs: Overview, Fuel Logs, Service Logs, Expenses, Documents, and Notes; each tab shows the relevant log list with FAB and swipe-to-delete
     - _Requirements: 5.11, 17.6, 17.7, 17.8_
 
 - [ ] 15. Log entry screens
