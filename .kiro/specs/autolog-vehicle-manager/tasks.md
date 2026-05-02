@@ -18,9 +18,9 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
   - [x] 2.1 Implement `theme/app_theme.dart` with Material 3 dark graphite + blue accent `ThemeData` and a matching light `ThemeData`
     - Define colour scheme, typography, card shape (rounded), and consistent spacing constants
     - _Requirements: 17.1, 17.2_
-  - [-] 2.2 Implement `theme/theme_controller.dart` as a Riverpod `StateNotifier` that reads/writes `ThemeMode` from SharedPreferences
+  - [x] 2.2 Implement `theme/theme_controller.dart` as a Riverpod `StateNotifier` that reads/writes `ThemeMode` from SharedPreferences
     - _Requirements: 14.1, 17.1_
-  - [~] 2.3 Wire `main.dart` with `ProviderScope`, `MaterialApp.router` using `go_router`, and `ThemeController`
+  - [-] 2.3 Wire `main.dart` with `ProviderScope`, `MaterialApp.router` using `go_router`, and `ThemeController`
     - Initialise Hive, open all boxes, and handle initialisation failure with a full-screen retry widget
     - _Requirements: 1.5, 18.1_
 
