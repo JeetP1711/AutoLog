@@ -50,9 +50,9 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
     - **Validates: Requirements 5.4, 5.5**
 
 - [ ] 5. Pure utility functions
-  - [~] 5.1 Implement `utils/mileage_calculator.dart` with `MileageCalculator.calculate()` (all fuel type branches, zero-quantity guard, negative-distance guard) and `MileageCalculator.distance()`
+  - [x] 5.1 Implement `utils/mileage_calculator.dart` with `MileageCalculator.calculate()` (all fuel type branches, zero-quantity guard, negative-distance guard) and `MileageCalculator.distance()`
     - _Requirements: 6.4, 6.5, 7.3, 7.4_
-  - [~] 5.2 Write property test for mileage calculation chain (Property 2)
+  - [x] 5.2 Write property test for mileage calculation chain (Property 2)
     - **Property 2: Mileage calculation chain**
     - Generate random pairs of consecutive odometer readings (current > previous) and positive quantities; assert `distance = current − previous`, `mileage = distance / quantity`, and both values are strictly positive
     - **Validates: Requirements 7.3, 7.4, 6.4**
