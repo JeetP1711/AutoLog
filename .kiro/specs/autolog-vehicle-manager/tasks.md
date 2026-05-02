@@ -144,19 +144,19 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
   - Implement `screens/pin/pin_lock_screen.dart` with a 4-digit PIN entry UI; on correct PIN navigate to Home; on 5 consecutive incorrect attempts lock input for 60 seconds with a visible countdown; use `PinService` for verification
   - _Requirements: 16.1, 16.2, 16.3_
 
-- [ ] 13. Home Dashboard screen
+- [x] 13. Home Dashboard screen
   - [x] 13.1 Implement `screens/home_screen.dart` displaying: vehicle count, monthly fuel spend, upcoming service due dates (≤ 30 days), expiring documents (≤ 30 days), recent activity feed (last 10 entries), quick-add buttons, yearly total spend, and alerts badge
     - Show skeleton loaders on initial load; show empty state illustration when no vehicles exist
     - _Requirements: 3.1, 3.2, 17.3, 17.4_
   - [x] 13.2 Wire pull-to-refresh and reactive updates so the dashboard reflects new log data without manual refresh
     - _Requirements: 3.4, 3.5_
-  - [~] 13.3 Write property test for dashboard totals accuracy (Property 10)
+  - [x] 13.3 Write property test for dashboard totals accuracy (Property 10)
     - **Property 10: Dashboard totals accuracy**
     - Generate random sets of fuel logs and expense logs for the current calendar month and year; assert the monthly fuel spend total equals the arithmetic sum of all `totalPrice` values for that month; assert the yearly total equals the sum of all fuel costs plus expense amounts for the year
     - **Validates: Requirements 3.1, 3.4**
 
 - [ ] 14. Vehicle screens
-  - [~] 14.1 Implement `screens/vehicles/vehicle_list_screen.dart` with a list of `VehicleCard` widgets, a FAB to add a vehicle, and swipe-to-delete with confirmation dialog
+  - [-] 14.1 Implement `screens/vehicles/vehicle_list_screen.dart` with a list of `VehicleCard` widgets, a FAB to add a vehicle, and swipe-to-delete with confirmation dialog
     - _Requirements: 5.8, 17.6, 17.7, 17.8_
   - [~] 14.2 Implement `screens/vehicles/add_edit_vehicle_screen.dart` with all required and optional fields; wire brand → model → year cascading dropdowns from `VehicleDatabase`; validate all required fields before save; show snackbar on success
     - _Requirements: 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.9, 17.5_
