@@ -134,13 +134,13 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
   - Wire the bottom navigation bar (five destinations: Home, Vehicles, Logs, Analytics, Settings) with state preservation across tab switches
   - _Requirements: 4.1, 4.2, 4.3_
 
-- [ ] 11. Splash and onboarding screens
-  - [-] 11.1 Implement `screens/splash_screen.dart` with the AutoLog logo animation (minimum 1.5 s, maximum 3 s); navigate to onboarding or home based on `onboardingCompleted` flag from `SettingsProvider`
+- [x] 11. Splash and onboarding screens
+  - [x] 11.1 Implement `screens/splash_screen.dart` with the AutoLog logo animation (minimum 1.5 s, maximum 3 s); navigate to onboarding or home based on `onboardingCompleted` flag from `SettingsProvider`
     - _Requirements: 2.1, 2.5_
-  - [-] 11.2 Implement `screens/onboarding_screen.dart` with a 3-slide PageView (Manage all vehicles / Track expenses / Never miss service dates), a Skip button, and a completion action that sets `onboardingCompleted = true` and navigates to Home
+  - [x] 11.2 Implement `screens/onboarding_screen.dart` with a 3-slide PageView (Manage all vehicles / Track expenses / Never miss service dates), a Skip button, and a completion action that sets `onboardingCompleted = true` and navigates to Home
     - _Requirements: 2.2, 2.3, 2.4_
 
-- [~] 12. PIN lock screen
+- [-] 12. PIN lock screen
   - Implement `screens/pin/pin_lock_screen.dart` with a 4-digit PIN entry UI; on correct PIN navigate to Home; on 5 consecutive incorrect attempts lock input for 60 seconds with a visible countdown; use `PinService` for verification
   - _Requirements: 16.1, 16.2, 16.3_
 
