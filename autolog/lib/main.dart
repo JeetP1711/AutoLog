@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'data/hive_boxes.dart';
 import 'models/document.dart';
 import 'models/enums.dart';
 import 'models/expense_log.dart';
@@ -40,8 +41,7 @@ Future<void> main() async {
   // Open all Hive boxes
   bool dbInitFailed = false;
   try {
-    // Boxes will be opened here as models are added in subsequent tasks.
-    // Example: await Hive.openBox<Vehicle>('vehicles');
+    await HiveBoxes.init();
   } catch (e, stackTrace) {
     debugPrint('Failed to open Hive boxes: $e\n$stackTrace');
     dbInitFailed = true;

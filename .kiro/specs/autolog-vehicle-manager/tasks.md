@@ -36,9 +36,9 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
     - **Validates: Requirements 1.3**
 
 - [ ] 4. Data layer — repositories and Hive box initialisation
-  - [-] 4.1 Implement `data/hive_boxes.dart` with box name constants and a single `HiveBoxes.init()` method that opens all six boxes
+  - [x] 4.1 Implement `data/hive_boxes.dart` with box name constants and a single `HiveBoxes.init()` method that opens all six boxes
     - _Requirements: 1.1, 1.3_
-  - [~] 4.2 Implement `data/vehicle_repository.dart`, `data/fuel_log_repository.dart`, `data/service_log_repository.dart`, `data/expense_log_repository.dart`, `data/document_repository.dart`, and `data/reminder_repository.dart`
+  - [-] 4.2 Implement `data/vehicle_repository.dart`, `data/fuel_log_repository.dart`, `data/service_log_repository.dart`, `data/expense_log_repository.dart`, `data/document_repository.dart`, and `data/reminder_repository.dart`
     - Each exposes `getAll`, `getById`, `save`, `delete`, and `watchAll` (reactive stream)
     - _Requirements: 1.1, 1.3, 5.8, 7.6, 8.5, 9.4, 10.5, 11.4_
   - [~] 4.3 Implement `data/vehicle_database.dart` that loads `assets/data/vehicle_database.json` once at startup, caches it in memory, and exposes `getBrands()`, `getModels(brand)`, and `getYears(brand, model)`
