@@ -155,7 +155,7 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
     - Generate random sets of fuel logs and expense logs for the current calendar month and year; assert the monthly fuel spend total equals the arithmetic sum of all `totalPrice` values for that month; assert the yearly total equals the sum of all fuel costs plus expense amounts for the year
     - **Validates: Requirements 3.1, 3.4**
 
-- [ ] 14. Vehicle screens
+- [x] 14. Vehicle screens
   - [x] 14.1 Implement `screens/vehicles/vehicle_list_screen.dart` with a list of `VehicleCard` widgets, a FAB to add a vehicle, and swipe-to-delete with confirmation dialog
     - _Requirements: 5.8, 17.6, 17.7, 17.8_
   - [x] 14.2 Implement `screens/vehicles/add_edit_vehicle_screen.dart` with all required and optional fields; wire brand → model → year cascading dropdowns from `VehicleDatabase`; validate all required fields before save; show snackbar on success
@@ -164,7 +164,7 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
     - _Requirements: 5.11, 17.6, 17.7, 17.8_
 
 - [ ] 15. Log entry screens
-  - [~] 15.1 Implement `screens/logs/add_edit_fuel_log_screen.dart` with required fields (date, quantity, total price, odometer) and optional fields (station name, full-tank toggle, notes); validate and save via `FuelLogProvider`; show snackbar on success
+  - [-] 15.1 Implement `screens/logs/add_edit_fuel_log_screen.dart` with required fields (date, quantity, total price, odometer) and optional fields (station name, full-tank toggle, notes); validate and save via `FuelLogProvider`; show snackbar on success
     - _Requirements: 7.1, 7.2, 7.6, 17.5_
   - [~] 15.2 Implement `screens/logs/add_edit_service_log_screen.dart` with required fields (date, service type, cost) and optional fields (odometer, garage name, notes, next due date, next due odometer); validate and save via `ServiceLogProvider`
     - _Requirements: 8.1, 8.2, 8.3, 8.5, 17.5_
