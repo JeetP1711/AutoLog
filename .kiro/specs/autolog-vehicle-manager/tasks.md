@@ -74,35 +74,35 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
 - [x] 6. Checkpoint — core utilities and data layer
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 7. Services layer
+- [x] 7. Services layer
   - [x] 7.1 Implement `services/pin_service.dart` storing the PIN as a SHA-256 hash in SharedPreferences; expose `setPin`, `verifyPin`, `clearPin`, and `isPinEnabled`
     - _Requirements: 16.1, 16.4, 16.5_
   - [x] 7.2 Write unit tests for `PinService`
     - Test hash correctness, verify-correct, verify-incorrect, and that plaintext PIN is never stored
     - _Requirements: 16.4_
-  - [-] 7.3 Implement `services/notification_service.dart` wrapping `flutter_local_notifications`; expose `init`, `scheduleReminder`, `cancelReminder`, and `cancelAllForVehicle`
+  - [x] 7.3 Implement `services/notification_service.dart` wrapping `flutter_local_notifications`; expose `init`, `scheduleReminder`, `cancelReminder`, and `cancelAllForVehicle`
     - Handle Android 13+ `POST_NOTIFICATIONS` permission; show persistent banner in Reminder Center if denied
     - _Requirements: 11.1, 11.2, 11.5, 11.6_
-  - [~] 7.4 Write property test for notification payload completeness (Property 11)
+  - [x] 7.4 Write property test for notification payload completeness (Property 11)
     - **Property 11: Notification payload completeness**
     - Generate random `Reminder` records with associated vehicle nicknames; build the notification payload via `NotificationService`; assert the payload body contains the vehicle nickname, the reminder type label, and either the formatted due date or the due odometer value
     - **Validates: Requirements 11.2**
-  - [~] 7.5 Implement `services/analytics_service.dart` as a pure computation service with `getMonthlyFuelSpend`, `getMileageTrend`, `getExpenseBreakdown`, and `getOwnershipCost`
+  - [x] 7.5 Implement `services/analytics_service.dart` as a pure computation service with `getMonthlyFuelSpend`, `getMileageTrend`, `getExpenseBreakdown`, and `getOwnershipCost`
     - _Requirements: 12.1, 12.2, 12.4_
-  - [~] 7.6 Write unit tests for `AnalyticsService`
+  - [x] 7.6 Write unit tests for `AnalyticsService`
     - Test each method with known inputs and expected outputs; test empty-input edge cases
     - _Requirements: 12.1, 12.3_
-  - [~] 7.7 Implement `services/backup_service.dart` with `exportToJson` (serialises all boxes + settings to a versioned JSON file saved to device storage) and `importFromJson` (validates structure, restores all records, leaves existing data untouched on failure)
+  - [x] 7.7 Implement `services/backup_service.dart` with `exportToJson` (serialises all boxes + settings to a versioned JSON file saved to device storage) and `importFromJson` (validates structure, restores all records, leaves existing data untouched on failure)
     - _Requirements: 15.1, 15.2, 15.3, 15.5_
-  - [~] 7.8 Write property test for backup round-trip (Property 1)
+  - [x] 7.8 Write property test for backup round-trip (Property 1)
     - **Property 1: Backup round-trip preserves all data**
     - Generate random app states (arbitrary combinations of vehicles, fuel logs, service logs, expense logs, documents, reminders, and settings); export to JSON; import from JSON; assert structural equality of all records and all field values
     - **Validates: Requirements 15.4**
 
 - [ ] 8. Riverpod providers
-  - [~] 8.1 Implement `providers/settings_provider.dart` as a `StateNotifier` backed by SharedPreferences; expose currency symbol, distance unit, theme mode, PIN enabled flag, and onboarding completed flag
+  - [x] 8.1 Implement `providers/settings_provider.dart` as a `StateNotifier` backed by SharedPreferences; expose currency symbol, distance unit, theme mode, PIN enabled flag, and onboarding completed flag
     - _Requirements: 14.1, 14.2, 14.3, 2.4, 2.5_
-  - [~] 8.2 Implement `providers/vehicle_provider.dart` as an `AsyncNotifier` backed by `VehicleRepository.watchAll()`; expose add, update, and delete actions (delete cascades to all associated logs, documents, and reminders)
+  - [x] 8.2 Implement `providers/vehicle_provider.dart` as an `AsyncNotifier` backed by `VehicleRepository.watchAll()`; expose add, update, and delete actions (delete cascades to all associated logs, documents, and reminders)
     - _Requirements: 5.1, 5.8, 5.9, 5.10_
   - [~] 8.3 Implement `providers/fuel_log_provider.dart` as an `AsyncNotifier`; on save, compute distance and mileage via `MileageCalculator` and persist; on delete, recalculate the subsequent entry's mileage
     - _Requirements: 7.3, 7.4, 7.6, 7.7_
