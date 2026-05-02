@@ -156,7 +156,7 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
     - **Validates: Requirements 3.1, 3.4**
 
 - [x] 14. Vehicle screens
-  - [x] 14.1 Implement `screens/vehicles/vehicle_list_screen.dart` with a list of `VehicleCard` widgets, a FAB to add a vehicle, and swipe-to-delete with confirmation dialog
+  - [-] 14.1 Implement `screens/vehicles/vehicle_list_screen.dart` with a list of `VehicleCard` widgets, a FAB to add a vehicle, and swipe-to-delete with confirmation dialog
     - _Requirements: 5.8, 17.6, 17.7, 17.8_
   - [x] 14.2 Implement `screens/vehicles/add_edit_vehicle_screen.dart` with all required and optional fields; wire brand → model → year cascading dropdowns from `VehicleDatabase`; validate all required fields before save; show snackbar on success
     - _Requirements: 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.9, 17.5_

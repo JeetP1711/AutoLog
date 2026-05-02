@@ -4,7 +4,7 @@
 // For any set of fuel logs and expense logs for the current calendar month,
 // the monthly fuel spend total equals the arithmetic sum of all totalPrice
 // values for that month. The yearly total equals the sum of all fuel costs
-// plus expense amounts for the current year.
+// plus expense amounts for the current calendar year.
 //
 // Validates: Requirements 3.1, 3.4
 
@@ -14,7 +14,9 @@ import 'package:kiri_check/kiri_check.dart';
 import 'package:autolog/models/models.dart';
 import 'package:autolog/services/analytics_service.dart';
 
-const _service = AnalyticsService();
+// ─────────────────────────────────────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────────────────────────────────────
 
 FuelLog _fuelLog(String id, DateTime date, double price) => FuelLog(
       id: id,
@@ -42,11 +44,18 @@ ServiceLog _serviceLog(String id, DateTime date, double cost) => ServiceLog(
       cost: cost,
     );
 
-void main() {
-  group('AnalyticsService — Property 10: dashboard totals accuracy', () {
-    test('monthly fuel spend equals arithmetic sum of current-month logs', () async {
-      final now = DateTime.now();
+// ─────────────────────────────────────────────────────────────────────────────
+// Tests
+// ─────────────────────────────────────────────────────────────────────────────
 
+void main() {
+  const service = AnalyticsService();
+  final now = DateTime.now();
+
+  group('AnalyticsService — Property 10: dashboard totals accuracy', () {
+    // ── Property-based tests ────────────────────────────────────────────────
+
+    test('monthly fuel spend equals arithmetic sum of current-month logs', () async {
       await property(
         forAll(
           list(
@@ -56,11 +65,13 @@ void main() {
           ),
         ),
         (prices) {
-          final logs = prices.asMap().entries.map((e) =>
-            _fuelLog('f${e.key}', DateTime(now.year, now.month, 1 + (e.key % 28)), e.value),
-          ).toList();
+          final logs = prices.asMap().entries.map((e) => _fuelLog(
+                'f${e.key}',
+                DateTime(now.year, now.month, 1 + (e.key % 28)),
+                e.value,
+              )).toList();
 
-          final total = _service.monthlyFuelSpend(logs);
+          final total = service.monthlyFuelSpend(logs);
           final expected = prices.fold(0.0, (sum, p) => sum + p);
 
           expect(total, closeTo(expected, 1e-6),
@@ -70,8 +81,6 @@ void main() {
     });
 
     test('yearly total equals sum of fuel + service + expense for current year', () async {
-      final now = DateTime.now();
-
       await property(
         forAll(
           combine3(
@@ -87,16 +96,13 @@ void main() {
         ),
         (triple) {
           final fuelLogs = triple.fuelPrices.asMap().entries.map((e) =>
-            _fuelLog('f${e.key}', DateTime(now.year, 1 + (e.key % 12), 1), e.value),
-          ).toList();
+              _fuelLog('f${e.key}', DateTime(now.year, 1 + (e.key % 12), 1), e.value)).toList();
           final serviceLogs = triple.serviceCosts.asMap().entries.map((e) =>
-            _serviceLog('s${e.key}', DateTime(now.year, 1 + (e.key % 12), 1), e.value),
-          ).toList();
+              _serviceLog('s${e.key}', DateTime(now.year, 1 + (e.key % 12), 1), e.value)).toList();
           final expenseLogs = triple.expenseAmounts.asMap().entries.map((e) =>
-            _expenseLog('e${e.key}', DateTime(now.year, 1 + (e.key % 12), 1), e.value),
-          ).toList();
+              _expenseLog('e${e.key}', DateTime(now.year, 1 + (e.key % 12), 1), e.value)).toList();
 
-          final total = _service.yearlyTotalSpend(fuelLogs, serviceLogs, expenseLogs);
+          final total = service.yearlyTotalSpend(fuelLogs, serviceLogs, expenseLogs);
           final expectedFuel = triple.fuelPrices.fold(0.0, (s, p) => s + p);
           final expectedService = triple.serviceCosts.fold(0.0, (s, c) => s + c);
           final expectedExpense = triple.expenseAmounts.fold(0.0, (s, a) => s + a);
@@ -108,19 +114,32 @@ void main() {
       );
     });
 
+    // ── Edge cases ──────────────────────────────────────────────────────────
+
     test('monthly spend is 0 when no logs exist', () {
-      expect(_service.monthlyFuelSpend([]), 0.0);
+      expect(service.monthlyFuelSpend([]), 0.0);
     });
 
     test('monthly spend ignores logs from other months', () {
-      final now = DateTime.now();
-      final lastMonth = DateTime(now.year, now.month - 1, 1);
+      final lastMonth = DateTime(now.year, now.month - 1 == 0 ? 12 : now.month - 1, 1);
       final logs = [_fuelLog('f1', lastMonth, 5000)];
-      expect(_service.monthlyFuelSpend(logs), 0.0);
+      expect(service.monthlyFuelSpend(logs), 0.0);
     });
 
     test('yearly total is 0 when no logs exist', () {
-      expect(_service.yearlyTotalSpend([], [], []), 0.0);
+      expect(service.yearlyTotalSpend([], [], []), 0.0);
+    });
+
+    test('yearly total ignores logs from other years', () {
+      final lastYear = DateTime(now.year - 1, 6, 1);
+      final fuelLogs = [_fuelLog('f1', lastYear, 9999)];
+      expect(service.yearlyTotalSpend(fuelLogs, [], []), 0.0);
+    });
+
+    test('known example: 3 fuel logs of 1000 each = 3000 monthly', () {
+      final logs = List.generate(3, (i) =>
+          _fuelLog('f$i', DateTime(now.year, now.month, i + 1), 1000));
+      expect(service.monthlyFuelSpend(logs), closeTo(3000, 0.01));
     });
   });
 }
