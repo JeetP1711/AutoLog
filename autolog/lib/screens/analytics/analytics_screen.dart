@@ -5,11 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/analytics_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/vehicle_provider.dart';
-import '../../services/analytics_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/currency_formatter.dart';
-import '../../widgets/empty_state.dart';
 import '../../widgets/skeleton_loader.dart';
 
 class AnalyticsScreen extends ConsumerWidget {
@@ -131,6 +129,9 @@ class _MonthlyFuelChart extends ConsumerWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _MileageTrendChart extends ConsumerWidget {
+  // ignore: prefer_const_constructors_in_immutables
+  _MileageTrendChart();
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final vehicles = ref.watch(vehicleProvider).valueOrNull ?? [];
@@ -236,12 +237,13 @@ class _ExpensePieChart extends ConsumerWidget {
                   child: PieChart(
                     PieChartData(
                       sections: entries.asMap().entries.map((e) {
-                        final color = AppColors
-                            .chartPalette[e.key % AppColors.chartPalette.length];
+                        final color = AppColors.chartPalette[
+                            e.key % AppColors.chartPalette.length];
                         return PieChartSectionData(
                           value: e.value.total,
                           color: color,
-                          title: '${(e.value.total / total * 100).toStringAsFixed(0)}%',
+                          title:
+                              '${(e.value.total / total * 100).toStringAsFixed(0)}%',
                           titleStyle: AppTextStyles.labelSmall
                               .copyWith(color: Colors.white),
                           radius: 70,
@@ -256,17 +258,18 @@ class _ExpensePieChart extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: entries.asMap().entries.take(6).map((e) {
-                    final color = AppColors
-                        .chartPalette[e.key % AppColors.chartPalette.length];
+                    final color = AppColors.chartPalette[
+                        e.key % AppColors.chartPalette.length];
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 2),
                       child: Row(
                         children: [
                           Container(
-                              width: 10,
-                              height: 10,
-                              decoration: BoxDecoration(
-                                  color: color, shape: BoxShape.circle)),
+                            width: 10,
+                            height: 10,
+                            decoration: BoxDecoration(
+                                color: color, shape: BoxShape.circle),
+                          ),
                           const SizedBox(width: 6),
                           Text(
                             e.value.category,
@@ -309,7 +312,8 @@ class _YearlyMaintenanceChart extends ConsumerWidget {
           final nonZero = points.where((p) => p.totalCost > 0).toList();
           if (nonZero.length < 2) {
             return const _EmptyChart(
-                message: 'Add more service and expense logs to see yearly trends');
+                message:
+                    'Add more service and expense logs to see yearly trends');
           }
           return SizedBox(
             height: 180,
@@ -388,10 +392,10 @@ class _VehicleComparisonChart extends ConsumerWidget {
       title: 'Vehicle Comparison',
       icon: Icons.compare_arrows_rounded,
       child: SizedBox(
-        height: 180,
+        height: 100,
         child: Center(
           child: Text(
-            'Select a vehicle to view ownership cost',
+            'Open a vehicle to view its ownership cost',
             style: AppTextStyles.bodySmall
                 .copyWith(color: AppColors.textSecondaryDark),
           ),

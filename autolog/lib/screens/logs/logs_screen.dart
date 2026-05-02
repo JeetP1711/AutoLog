@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/models.dart';
-import '../../providers/analytics_provider.dart';
+import '../../providers/expense_log_provider.dart';
+import '../../providers/fuel_log_provider.dart';
+import '../../providers/service_log_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/vehicle_provider.dart';
 import '../../theme/app_colors.dart';
