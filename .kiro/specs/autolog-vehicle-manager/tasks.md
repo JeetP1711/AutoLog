@@ -206,7 +206,7 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
   - [~] 20.3 Wire distance unit change to convert all displayed odometer and distance values throughout the app via `UnitConverter`
     - _Requirements: 14.4_
 
-- [~] 21. Shared widgets
+- [x] 21. Shared widgets
   - Implement all reusable widgets: `widgets/vehicle_card.dart`, `widgets/log_tile.dart`, `widgets/stat_card.dart`, `widgets/empty_state.dart`, `widgets/skeleton_loader.dart`, and `widgets/confirm_dialog.dart`
   - Ensure rounded cards, consistent spacing, and Material 3 styling throughout
   - _Requirements: 17.2, 17.3, 17.4, 17.6_
