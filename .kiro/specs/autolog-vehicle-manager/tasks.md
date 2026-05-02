@@ -14,18 +14,18 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
   - Run `flutter pub get` and confirm zero import or asset errors
   - _Requirements: 18.1, 18.3, 18.4, 18.5_
 
-- [ ] 2. Theme and app entry point
+- [x] 2. Theme and app entry point
   - [x] 2.1 Implement `theme/app_theme.dart` with Material 3 dark graphite + blue accent `ThemeData` and a matching light `ThemeData`
     - Define colour scheme, typography, card shape (rounded), and consistent spacing constants
     - _Requirements: 17.1, 17.2_
   - [x] 2.2 Implement `theme/theme_controller.dart` as a Riverpod `StateNotifier` that reads/writes `ThemeMode` from SharedPreferences
     - _Requirements: 14.1, 17.1_
-  - [-] 2.3 Wire `main.dart` with `ProviderScope`, `MaterialApp.router` using `go_router`, and `ThemeController`
+  - [x] 2.3 Wire `main.dart` with `ProviderScope`, `MaterialApp.router` using `go_router`, and `ThemeController`
     - Initialise Hive, open all boxes, and handle initialisation failure with a full-screen retry widget
     - _Requirements: 1.5, 18.1_
 
 - [ ] 3. Core domain models and Hive adapters
-  - [~] 3.1 Implement all model files in `models/`: `Vehicle`, `FuelLog`, `ServiceLog`, `ExpenseLog`, `Document`, `Reminder`, `AppSettings` with `@HiveType`/`@HiveField` annotations, `copyWith`, `toJson`, and `fromJson`
+  - [-] 3.1 Implement all model files in `models/`: `Vehicle`, `FuelLog`, `ServiceLog`, `ExpenseLog`, `Document`, `Reminder`, `AppSettings` with `@HiveType`/`@HiveField` annotations, `copyWith`, `toJson`, and `fromJson`
     - Include all enumerations: `FuelType`, `VehicleType`, `DistanceUnit`, `ReminderType`
     - _Requirements: 5.2, 5.7, 6.1, 7.1, 8.1, 9.1, 10.1, 11.1, 18.2_
   - [~] 3.2 Run `build_runner` to generate `*.g.dart` TypeAdapter files; commit generated files
