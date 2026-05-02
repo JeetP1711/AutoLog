@@ -399,14 +399,12 @@ class _DatePickerField extends StatelessWidget {
     required this.value,
     required this.onTap,
     this.onClear,
-    this.optional = false,
   });
 
   final String label;
   final DateTime? value;
   final VoidCallback onTap;
   final VoidCallback? onClear;
-  final bool optional;
 
   @override
   Widget build(BuildContext context) {
