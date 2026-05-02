@@ -110,13 +110,13 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
     - **Property 6: Fuel log deletion triggers correct mileage recalculation**
     - Generate ordered sequences of 3+ fuel logs for the same vehicle with strictly increasing odometers; delete the middle entry via the provider; assert the immediately following entry's mileage equals `(followingOdometer − precedingOdometer) / followingQuantity`
     - **Validates: Requirements 7.7**
-  - [-] 8.5 Implement `providers/service_log_provider.dart`; on save, if `nextDueDate` or `nextDueOdometerKm` is set, create exactly one `Reminder` via `ReminderRepository` and schedule it via `NotificationService`
+  - [x] 8.5 Implement `providers/service_log_provider.dart`; on save, if `nextDueDate` or `nextDueOdometerKm` is set, create exactly one `Reminder` via `ReminderRepository` and schedule it via `NotificationService`
     - _Requirements: 8.4_
-  - [~] 8.6 Write property test for automatic reminder creation (Property 5 — service log branch)
+  - [x] 8.6 Write property test for automatic reminder creation (Property 5 — service log branch)
     - **Property 5: Automatic reminder creation (service log)**
     - Generate random service logs with a next due date or next due odometer; save via provider; assert exactly one reminder is created and persisted in `ReminderRepository`
     - **Validates: Requirements 8.4**
-  - [~] 8.7 Implement `providers/document_provider.dart`; on save with an expiry date more than 30 days in the future, create exactly two reminders at `expiryDate − 30 days` and `expiryDate − 7 days`; on delete, cancel associated notifications
+  - [x] 8.7 Implement `providers/document_provider.dart`; on save with an expiry date more than 30 days in the future, create exactly two reminders at `expiryDate − 30 days` and `expiryDate − 7 days`; on delete, cancel associated notifications
     - _Requirements: 10.4, 11.5_
   - [~] 8.8 Write property test for automatic reminder creation (Property 5 — document branch)
     - **Property 5: Automatic reminder creation (document)**
