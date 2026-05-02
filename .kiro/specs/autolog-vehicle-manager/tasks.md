@@ -198,12 +198,12 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
   - Show informational empty state for any chart with fewer than 2 data points
   - _Requirements: 12.1, 12.2, 12.3, 12.4_
 
-- [ ] 20. Settings and About screens
+- [x] 20. Settings and About screens
   - [x] 20.1 Implement `screens/settings/settings_screen.dart` with toggles and actions for: dark/light mode, currency symbol, distance unit, export backup, import backup, reset all data (with confirmation dialog), PIN lock enable/disable/change, and navigation to About
     - _Requirements: 14.1, 14.2, 14.3, 14.5, 14.6, 14.7, 14.8_
   - [x] 20.2 Implement `screens/settings/about_screen.dart` displaying app name, version, and tagline "Track Every Mile"
     - _Requirements: 14.9_
-  - [ ] 20.3 Wire distance unit change to convert all displayed odometer and distance values throughout the app via `UnitConverter`
+  - [x] 20.3 Wire distance unit change to convert all displayed odometer and distance values throughout the app via `UnitConverter`
     - _Requirements: 14.4_
 
 - [x] 21. Shared widgets
@@ -211,7 +211,7 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
   - Ensure rounded cards, consistent spacing, and Material 3 styling throughout
   - _Requirements: 17.2, 17.3, 17.4, 17.6_
 
-- [ ] 22. Checkpoint — all screens and widgets
+- [x] 22. Checkpoint — all screens and widgets
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 23. Widget tests
