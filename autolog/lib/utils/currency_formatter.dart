@@ -30,11 +30,11 @@ abstract final class CurrencyFormatter {
   ///
   /// Values ≥ 1,00,000 are shown as "₹1.2L"; ≥ 1,000 as "₹1.2K".
   static String formatCompact(double amount, String symbol) {
-    if (amount >= 100_000) {
-      return '$symbol${(amount / 100_000).toStringAsFixed(1)}L';
+    if (amount >= 100000) {
+      return '$symbol${(amount / 100000).toStringAsFixed(1)}L';
     }
-    if (amount >= 1_000) {
-      return '$symbol${(amount / 1_000).toStringAsFixed(1)}K';
+    if (amount >= 1000) {
+      return '$symbol${(amount / 1000).toStringAsFixed(1)}K';
     }
     return format(amount, symbol);
   }

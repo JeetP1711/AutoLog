@@ -35,7 +35,6 @@ class OwnershipCostData {
     required this.fuelCost,
     required this.serviceCost,
     required this.expenseCost,
-    required this.totalCost,
   });
   final String vehicleId;
   final String vehicleNickname;
@@ -176,7 +175,6 @@ class AnalyticsService {
       fuelCost: fuelCost,
       serviceCost: serviceCost,
       expenseCost: expenseCost,
-      totalCost: fuelCost + serviceCost + expenseCost,
     );
   }
 

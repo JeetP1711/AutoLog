@@ -211,7 +211,7 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
   - Ensure rounded cards, consistent spacing, and Material 3 styling throughout
   - _Requirements: 17.2, 17.3, 17.4, 17.6_
 
-- [x] 22. Checkpoint — all screens and widgets
+- [ ] 22. Checkpoint — all screens and widgets
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 23. Widget tests

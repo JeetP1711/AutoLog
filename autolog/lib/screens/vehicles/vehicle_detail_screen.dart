@@ -12,7 +12,6 @@ import '../../providers/vehicle_provider.dart';
 import '../../router.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_theme.dart';
-import '../../utils/currency_formatter.dart';
 import '../../utils/date_formatter.dart';
 import '../../utils/mileage_calculator.dart';
 import '../../utils/unit_converter.dart';
@@ -198,17 +197,11 @@ class _OverviewTab extends ConsumerWidget {
                 loading: () => const SkeletonCard(height: 90),
                 error: (_, __) => const SizedBox.shrink(),
                 data: (logs) {
-                  final avgMileage = logs.isEmpty
+                  final withMileage = logs.where((l) => l.mileage != null).toList();
+                  final avgMileage = withMileage.isEmpty
                       ? null
-                      : logs
-                              .where((l) => l.mileage != null)
-                              .map((l) => l.mileage!)
-                              .fold(0.0, (a, b) => a + b) /
-                          (logs.where((l) => l.mileage != null).length == 0
-                              ? 1
-                              : logs
-                                  .where((l) => l.mileage != null)
-                                  .length);
+                      : withMileage.map((l) => l.mileage!).fold(0.0, (a, b) => a + b) /
+                          withMileage.length;
                   final unit = MileageCalculator.efficiencyUnit(
                       vehicle.fuelType,
                       customUnit: vehicle.customFuelUnit);

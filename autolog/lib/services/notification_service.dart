@@ -120,7 +120,7 @@ class NotificationService {
 
   /// Converts a reminder UUID string to a stable integer notification ID.
   int _notificationId(String reminderId) =>
-      reminderId.hashCode.abs() % 2_147_483_647;
+      reminderId.hashCode.abs() % 2147483647;
 
   /// Builds the notification body text from [reminder] and [vehicleNickname].
   String _buildBody(Reminder reminder, String vehicleNickname) {
