@@ -178,32 +178,32 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
   - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 17.5_
 
 - [ ] 17. Unified Logs screen
-  - [~] 17.1 Implement `screens/logs/logs_screen.dart` displaying a combined chronological timeline of all log types across all vehicles, sorted by date descending; show log type icon and vehicle name on each tile
+  - [ ] 17.1 Implement `screens/logs/logs_screen.dart` displaying a combined chronological timeline of all log types across all vehicles, sorted by date descending; show log type icon and vehicle name on each tile
     - _Requirements: 13.1_
-  - [~] 17.2 Add search bar (free-text match on notes, garage names, station names) and filter controls (date range, vehicle, category); update the list reactively as filters change; show empty state when no results match
+  - [ ] 17.2 Add search bar (free-text match on notes, garage names, station names) and filter controls (date range, vehicle, category); update the list reactively as filters change; show empty state when no results match
     - _Requirements: 13.2, 13.3, 13.4_
-  - [~] 17.3 Write property test for log filter consistency (Property 7)
+  - [ ] 17.3 Write property test for log filter consistency (Property 7)
     - **Property 7: Log filter consistency**
     - Generate random log lists with embedded search terms; apply arbitrary combinations of search query, date range, vehicle filter, and category filter; assert every returned entry satisfies all active criteria and no matching entry is absent from the results
     - **Validates: Requirements 13.2, 13.3**
-  - [~] 17.4 Implement swipe-to-delete on log tiles with confirmation dialog
+  - [ ] 17.4 Implement swipe-to-delete on log tiles with confirmation dialog
     - _Requirements: 13.5, 17.6, 17.7_
 
-- [~] 18. Reminder Center screen
+- [ ] 18. Reminder Center screen
   - Implement `screens/reminders/reminder_center_screen.dart` listing all pending reminders with vehicle name, type, and due date/odometer; allow dismiss and delete; show notification-disabled banner if permission is denied
   - _Requirements: 11.3, 11.4_
 
-- [~] 19. Analytics screen
+- [ ] 19. Analytics screen
   - Implement `screens/analytics/analytics_screen.dart` using `fl_chart` widgets from `widgets/chart_widgets/`: monthly fuel spend bar chart, yearly maintenance cost bar chart, mileage trend line chart, expense category pie chart, total ownership cost bar chart, and vehicle comparison bar chart (when > 1 vehicle)
   - Show informational empty state for any chart with fewer than 2 data points
   - _Requirements: 12.1, 12.2, 12.3, 12.4_
 
 - [ ] 20. Settings and About screens
-  - [~] 20.1 Implement `screens/settings/settings_screen.dart` with toggles and actions for: dark/light mode, currency symbol, distance unit, export backup, import backup, reset all data (with confirmation dialog), PIN lock enable/disable/change, and navigation to About
+  - [ ] 20.1 Implement `screens/settings/settings_screen.dart` with toggles and actions for: dark/light mode, currency symbol, distance unit, export backup, import backup, reset all data (with confirmation dialog), PIN lock enable/disable/change, and navigation to About
     - _Requirements: 14.1, 14.2, 14.3, 14.5, 14.6, 14.7, 14.8_
-  - [~] 20.2 Implement `screens/settings/about_screen.dart` displaying app name, version, and tagline "Track Every Mile"
+  - [ ] 20.2 Implement `screens/settings/about_screen.dart` displaying app name, version, and tagline "Track Every Mile"
     - _Requirements: 14.9_
-  - [~] 20.3 Wire distance unit change to convert all displayed odometer and distance values throughout the app via `UnitConverter`
+  - [ ] 20.3 Wire distance unit change to convert all displayed odometer and distance values throughout the app via `UnitConverter`
     - _Requirements: 14.4_
 
 - [x] 21. Shared widgets
@@ -211,41 +211,41 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
   - Ensure rounded cards, consistent spacing, and Material 3 styling throughout
   - _Requirements: 17.2, 17.3, 17.4, 17.6_
 
-- [~] 22. Checkpoint — all screens and widgets
+- [ ] 22. Checkpoint — all screens and widgets
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 23. Widget tests
-  - [~] 23.1 Write widget tests for `HomeScreen` (empty state, populated state, pull-to-refresh)
+  - [ ] 23.1 Write widget tests for `HomeScreen` (empty state, populated state, pull-to-refresh)
     - Use `ProviderScope` overrides to inject mock repositories
     - _Requirements: 3.1, 3.2, 3.5_
-  - [~] 23.2 Write widget tests for `VehicleDetailScreen` (tab navigation, correct data per tab)
+  - [ ] 23.2 Write widget tests for `VehicleDetailScreen` (tab navigation, correct data per tab)
     - _Requirements: 5.11_
-  - [~] 23.3 Write widget tests for `AddEditFuelLogScreen` (form validation, save triggers provider update)
+  - [ ] 23.3 Write widget tests for `AddEditFuelLogScreen` (form validation, save triggers provider update)
     - _Requirements: 7.1, 7.2_
-  - [~] 23.4 Write widget tests for `PinLockScreen` (correct PIN navigates away, incorrect PIN increments counter, lockout after 5 attempts)
+  - [ ] 23.4 Write widget tests for `PinLockScreen` (correct PIN navigates away, incorrect PIN increments counter, lockout after 5 attempts)
     - _Requirements: 16.1, 16.2, 16.3_
-  - [~] 23.5 Write widget tests for `AnalyticsScreen` (empty state placeholders, chart renders with 2+ data points)
+  - [ ] 23.5 Write widget tests for `AnalyticsScreen` (empty state placeholders, chart renders with 2+ data points)
     - _Requirements: 12.3_
 
 - [ ] 24. Integration tests
-  - [~] 24.1 Write integration test: full onboarding → add vehicle → add fuel log → verify home dashboard totals
+  - [ ] 24.1 Write integration test: full onboarding → add vehicle → add fuel log → verify home dashboard totals
     - _Requirements: 2.2, 2.4, 5.2, 7.1, 3.1_
-  - [~] 24.2 Write integration test: export backup → clear data → import backup → verify data restored
+  - [ ] 24.2 Write integration test: export backup → clear data → import backup → verify data restored
     - _Requirements: 15.1, 15.2, 15.5_
-  - [~] 24.3 Write integration test: add document with expiry → verify two reminders created in Reminder Center
+  - [ ] 24.3 Write integration test: add document with expiry → verify two reminders created in Reminder Center
     - _Requirements: 10.4, 11.3_
-  - [~] 24.4 Write integration test: enable PIN → relaunch app → verify PIN screen shown → enter correct PIN → verify home screen
+  - [ ] 24.4 Write integration test: enable PIN → relaunch app → verify PIN screen shown → enter correct PIN → verify home screen
     - _Requirements: 16.1, 16.2_
-  - [~] 24.5 Write performance test: populate 10,000 fuel log entries via direct Hive writes; assert `FuelLogRepository.getAll()` completes in under 300 ms
+  - [ ] 24.5 Write performance test: populate 10,000 fuel log entries via direct Hive writes; assert `FuelLogRepository.getAll()` completes in under 300 ms
     - _Requirements: 17.9_
 
-- [~] 25. Release APK build
+- [ ] 25. Release APK build
   - Configure `android/app/build.gradle` with a release signing config (keystore or debug key for CI)
   - Run `flutter build apk --release` and confirm the build completes without errors
   - Verify the APK installs and launches on an Android emulator or device
   - _Requirements: 18.6_
 
-- [~] 26. Final checkpoint — full test suite and release build
+- [ ] 26. Final checkpoint — full test suite and release build
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes
