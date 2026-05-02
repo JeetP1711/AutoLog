@@ -220,7 +220,7 @@ void main() {
   // Each test uses a unique box name to avoid cross-test contamination.
 
   test('Vehicle: Hive persistence round-trip', () async {
-    await property(
+    property(
       forAll(_vehicle),
       (vehicle) async {
         final boxName = 'vehicles_${vehicle.id.hashCode.abs()}';
@@ -232,7 +232,7 @@ void main() {
   });
 
   test('FuelLog: Hive persistence round-trip', () async {
-    await property(
+    property(
       forAll(_fuelLog),
       (log) async {
         final boxName = 'fuel_logs_${log.id.hashCode.abs()}';
@@ -244,7 +244,7 @@ void main() {
   });
 
   test('ServiceLog: Hive persistence round-trip', () async {
-    await property(
+    property(
       forAll(_serviceLog),
       (log) async {
         final boxName = 'service_logs_${log.id.hashCode.abs()}';
@@ -256,7 +256,7 @@ void main() {
   });
 
   test('ExpenseLog: Hive persistence round-trip', () async {
-    await property(
+    property(
       forAll(_expenseLog),
       (log) async {
         final boxName = 'expense_logs_${log.id.hashCode.abs()}';
@@ -268,7 +268,7 @@ void main() {
   });
 
   test('Document: Hive persistence round-trip', () async {
-    await property(
+    property(
       forAll(_document),
       (doc) async {
         final boxName = 'documents_${doc.id.hashCode.abs()}';
@@ -280,7 +280,7 @@ void main() {
   });
 
   test('Reminder: Hive persistence round-trip', () async {
-    await property(
+    property(
       forAll(_reminder),
       (reminder) async {
         final boxName = 'reminders_${reminder.id.hashCode.abs()}';

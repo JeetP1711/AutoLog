@@ -61,7 +61,7 @@ double? simulateDeletion(
 void main() {
   group('MileageCalculator — Property 6: deletion recalculation', () {
     test('deleting middle entry recalculates following entry mileage', () async {
-      await property(
+      property(
         forAll(
           combine2(
             // Generate 3 strictly increasing odometer values

@@ -56,7 +56,7 @@ void main() {
     // ── Property-based tests ────────────────────────────────────────────────
 
     test('monthly fuel spend equals arithmetic sum of current-month logs', () async {
-      await property(
+      property(
         forAll(
           list(
             float(min: 0.01, max: 10_000.0, withNaN: false, withInfinities: false),
@@ -81,7 +81,7 @@ void main() {
     });
 
     test('yearly total equals sum of fuel + service + expense for current year', () async {
-      await property(
+      property(
         forAll(
           combine3(
             list(float(min: 0.01, max: 5000.0, withNaN: false, withInfinities: false), minLength: 0, maxLength: 10),

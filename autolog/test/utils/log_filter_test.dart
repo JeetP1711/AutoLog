@@ -97,7 +97,7 @@ Arbitrary<LogEntry> get _entry => combine5(
 void main() {
   group('LogFilter — Property 7: filter consistency', () {
     test('every returned entry satisfies all active filter criteria', () async {
-      await property(
+      property(
         forAll(
           combine3(
             list(_entry, minLength: 0, maxLength: 20),
@@ -134,7 +134,7 @@ void main() {
     });
 
     test('no matching entry is absent from results', () async {
-      await property(
+      property(
         forAll(
           combine2(
             list(_entry, minLength: 0, maxLength: 20),
@@ -161,7 +161,7 @@ void main() {
     });
 
     test('vehicle filter: only entries for selected vehicle are returned', () async {
-      await property(
+      property(
         forAll(
           combine2(
             list(_entry, minLength: 1, maxLength: 20),
@@ -216,7 +216,7 @@ void main() {
     });
 
     test('empty filter returns all entries', () async {
-      await property(
+      property(
         forAll(list(_entry, minLength: 0, maxLength: 20)),
         (entries) {
           final results = applyFilters(entries);
