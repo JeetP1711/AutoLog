@@ -265,6 +265,7 @@ class _AddEditServiceLogScreenState
                   children: [
                     // ── Vehicle selector ─────────────────────────────────
                     DropdownButtonFormField<String>(
+                      // ignore: deprecated_member_use
                       value: _selectedVehicleId,
                       decoration: const InputDecoration(
                         labelText: 'Vehicle *',
@@ -419,7 +420,6 @@ class _AddEditServiceLogScreenState
                       value: _nextDueDate,
                       onTap: _pickNextDueDate,
                       onClear: () => setState(() => _nextDueDate = null),
-                      optional: true,
                     ),
                     const SizedBox(height: AppSpacing.md),
 

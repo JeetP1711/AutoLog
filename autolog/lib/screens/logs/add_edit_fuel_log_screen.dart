@@ -236,6 +236,7 @@ class _AddEditFuelLogScreenState extends ConsumerState<AddEditFuelLogScreen> {
                   children: [
                     // ── Vehicle selector ─────────────────────────────────
                     DropdownButtonFormField<String>(
+                      // ignore: deprecated_member_use
                       value: _selectedVehicleId,
                       decoration: const InputDecoration(
                         labelText: 'Vehicle *',
@@ -398,13 +399,11 @@ class _DatePickerField extends StatelessWidget {
     required this.label,
     required this.value,
     required this.onTap,
-    this.onClear,
   });
 
   final String label;
   final DateTime? value;
   final VoidCallback onTap;
-  final VoidCallback? onClear;
 
   @override
   Widget build(BuildContext context) {
@@ -418,13 +417,7 @@ class _DatePickerField extends StatelessWidget {
         decoration: InputDecoration(
           labelText: label,
           prefixIcon: const Icon(Icons.calendar_month_outlined),
-          suffixIcon: (value != null && onClear != null)
-              ? IconButton(
-                  icon: const Icon(Icons.clear_rounded, size: 18),
-                  onPressed: onClear,
-                  tooltip: 'Clear date',
-                )
-              : const Icon(Icons.arrow_drop_down_rounded),
+          suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
         ),
         child: Text(
           formatted ?? 'Tap to select',
