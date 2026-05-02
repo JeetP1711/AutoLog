@@ -189,7 +189,7 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
   - [x] 17.4 Implement swipe-to-delete on log tiles with confirmation dialog
     - _Requirements: 13.5, 17.6, 17.7_
 
-- [ ] 18. Reminder Center screen
+- [x] 18. Reminder Center screen
   - Implement `screens/reminders/reminder_center_screen.dart` listing all pending reminders with vehicle name, type, and due date/odometer; allow dismiss and delete; show notification-disabled banner if permission is denied
   - _Requirements: 11.3, 11.4_
 
