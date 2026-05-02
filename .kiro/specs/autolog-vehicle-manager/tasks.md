@@ -56,15 +56,15 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
     - **Property 2: Mileage calculation chain**
     - Generate random pairs of consecutive odometer readings (current > previous) and positive quantities; assert `distance = current − previous`, `mileage = distance / quantity`, and both values are strictly positive
     - **Validates: Requirements 7.3, 7.4, 6.4**
-  - [~] 5.3 Implement `utils/unit_converter.dart` with `UnitConverter.kmToMiles()`, `milesToKm()`, and `convertDistance()`
+  - [x] 5.3 Implement `utils/unit_converter.dart` with `UnitConverter.kmToMiles()`, `milesToKm()`, and `convertDistance()`
     - _Requirements: 14.3, 14.4_
-  - [~] 5.4 Write property test for unit conversion round-trip (Property 3)
+  - [x] 5.4 Write property test for unit conversion round-trip (Property 3)
     - **Property 3: Unit conversion round-trip**
     - Generate random km values (including 0 and very large values); convert to miles then back to km; assert result is within ε = 1e-9 of the original
     - **Validates: Requirements 14.4**
-  - [~] 5.5 Implement `utils/validators.dart` with field validators for all required fields (nickname, number plate, odometer, quantity, price, date, PIN)
+  - [x] 5.5 Implement `utils/validators.dart` with field validators for all required fields (nickname, number plate, odometer, quantity, price, date, PIN)
     - _Requirements: 5.2, 7.1, 8.1, 9.1_
-  - [~] 5.6 Write property test for whitespace-only input rejection (Property 4)
+  - [-] 5.6 Write property test for whitespace-only input rejection (Property 4)
     - **Property 4: Whitespace-only inputs are rejected**
     - Generate strings composed entirely of spaces, tabs, and newlines; assert every field validator returns invalid for these inputs; assert no Vehicle, FuelLog, ServiceLog, or ExpenseLog can be created with a whitespace-only required field
     - **Validates: Requirements 5.2, 7.1, 8.1, 9.1**
