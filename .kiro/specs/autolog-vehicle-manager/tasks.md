@@ -199,9 +199,9 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
   - _Requirements: 12.1, 12.2, 12.3, 12.4_
 
 - [ ] 20. Settings and About screens
-  - [ ] 20.1 Implement `screens/settings/settings_screen.dart` with toggles and actions for: dark/light mode, currency symbol, distance unit, export backup, import backup, reset all data (with confirmation dialog), PIN lock enable/disable/change, and navigation to About
+  - [x] 20.1 Implement `screens/settings/settings_screen.dart` with toggles and actions for: dark/light mode, currency symbol, distance unit, export backup, import backup, reset all data (with confirmation dialog), PIN lock enable/disable/change, and navigation to About
     - _Requirements: 14.1, 14.2, 14.3, 14.5, 14.6, 14.7, 14.8_
-  - [ ] 20.2 Implement `screens/settings/about_screen.dart` displaying app name, version, and tagline "Track Every Mile"
+  - [x] 20.2 Implement `screens/settings/about_screen.dart` displaying app name, version, and tagline "Track Every Mile"
     - _Requirements: 14.9_
   - [ ] 20.3 Wire distance unit change to convert all displayed odometer and distance values throughout the app via `UnitConverter`
     - _Requirements: 14.4_
