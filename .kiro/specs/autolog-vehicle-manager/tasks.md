@@ -145,10 +145,10 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
   - _Requirements: 16.1, 16.2, 16.3_
 
 - [ ] 13. Home Dashboard screen
-  - [ ] 13.1 Implement `screens/home_screen.dart` displaying: vehicle count, monthly fuel spend, upcoming service due dates (≤ 30 days), expiring documents (≤ 30 days), recent activity feed (last 10 entries), quick-add buttons, yearly total spend, and alerts badge
+  - [x] 13.1 Implement `screens/home_screen.dart` displaying: vehicle count, monthly fuel spend, upcoming service due dates (≤ 30 days), expiring documents (≤ 30 days), recent activity feed (last 10 entries), quick-add buttons, yearly total spend, and alerts badge
     - Show skeleton loaders on initial load; show empty state illustration when no vehicles exist
     - _Requirements: 3.1, 3.2, 17.3, 17.4_
-  - [~] 13.2 Wire pull-to-refresh and reactive updates so the dashboard reflects new log data without manual refresh
+  - [x] 13.2 Wire pull-to-refresh and reactive updates so the dashboard reflects new log data without manual refresh
     - _Requirements: 3.4, 3.5_
   - [~] 13.3 Write property test for dashboard totals accuracy (Property 10)
     - **Property 10: Dashboard totals accuracy**
