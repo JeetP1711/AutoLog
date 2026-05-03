@@ -227,16 +227,16 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
   - [x] 23.5 Write widget tests for `AnalyticsScreen` (empty state placeholders, chart renders with 2+ data points)
     - _Requirements: 12.3_
 
-- [ ] 24. Integration tests
-  - [ ] 24.1 Write integration test: full onboarding → add vehicle → add fuel log → verify home dashboard totals
+- [x] 24. Integration tests
+  - [x] 24.1 Write integration test: full onboarding → add vehicle → add fuel log → verify home dashboard totals
     - _Requirements: 2.2, 2.4, 5.2, 7.1, 3.1_
-  - [ ] 24.2 Write integration test: export backup → clear data → import backup → verify data restored
+  - [x] 24.2 Write integration test: export backup → clear data → import backup → verify data restored
     - _Requirements: 15.1, 15.2, 15.5_
-  - [ ] 24.3 Write integration test: add document with expiry → verify two reminders created in Reminder Center
+  - [x] 24.3 Write integration test: add document with expiry → verify two reminders created in Reminder Center
     - _Requirements: 10.4, 11.3_
-  - [ ] 24.4 Write integration test: enable PIN → relaunch app → verify PIN screen shown → enter correct PIN → verify home screen
+  - [x] 24.4 Write integration test: enable PIN → relaunch app → verify PIN screen shown → enter correct PIN → verify home screen
     - _Requirements: 16.1, 16.2_
-  - [ ] 24.5 Write performance test: populate 10,000 fuel log entries via direct Hive writes; assert `FuelLogRepository.getAll()` completes in under 300 ms
+  - [x] 24.5 Write performance test: populate 10,000 fuel log entries via direct Hive writes; assert `FuelLogRepository.getAll()` completes in under 300 ms
     - _Requirements: 17.9_
 
 - [ ] 25. Release APK build
