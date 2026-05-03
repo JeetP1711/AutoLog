@@ -228,7 +228,7 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
     - _Requirements: 12.3_
 
 - [ ] 24. Integration tests
-  - [-] 24.1 Write integration test: full onboarding → add vehicle → add fuel log → verify home dashboard totals
+  - [ ] 24.1 Write integration test: full onboarding → add vehicle → add fuel log → verify home dashboard totals
     - _Requirements: 2.2, 2.4, 5.2, 7.1, 3.1_
   - [ ] 24.2 Write integration test: export backup → clear data → import backup → verify data restored
     - _Requirements: 15.1, 15.2, 15.5_
