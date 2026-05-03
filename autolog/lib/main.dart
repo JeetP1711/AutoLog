@@ -140,10 +140,12 @@ class DatabaseInitError extends StatelessWidget {
                       width: 1.5,
                     ),
                   ),
-                  child: const Icon(
-                    Icons.directions_car_rounded,
-                    size: 52,
-                    color: AppColors.primaryBlue,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(22),
+                    child: Image.asset(
+                      'assets/images/app_icon.png',
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
 
