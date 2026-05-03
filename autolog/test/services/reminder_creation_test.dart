@@ -84,7 +84,7 @@ Arbitrary<double> get _posOdo =>
 void main() {
   group('Property 5 — Service log: exactly one reminder created', () {
     test('service log with nextDueDate creates exactly one reminder', () async {
-      await property(
+      property(
         forAll(_futureDate),
         (dueDate) {
           final log = ServiceLog(
@@ -105,7 +105,7 @@ void main() {
     });
 
     test('service log with nextDueOdometerKm creates exactly one reminder', () async {
-      await property(
+      property(
         forAll(_posOdo),
         (odo) {
           final log = ServiceLog(
@@ -137,7 +137,7 @@ void main() {
 
   group('Property 5 — Document: exactly two reminders created', () {
     test('document with expiry > 30 days creates exactly two reminders', () async {
-      await property(
+      property(
         forAll(integer(min: 31, max: 3650)),
         (daysAhead) {
           final expiry = DateTime.now().add(Duration(days: daysAhead));

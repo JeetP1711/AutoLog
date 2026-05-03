@@ -72,7 +72,7 @@ Arbitrary<DateTime> get _futureDate => integer(min: 1, max: 3650).map(
 void main() {
   group('NotificationService — Property 11: payload completeness', () {
     test('body contains vehicle nickname for date-based reminders', () async {
-      await property(
+      property(
         forAll(
           combine3(
             _nonEmptyString,
@@ -106,7 +106,7 @@ void main() {
     });
 
     test('body contains vehicle nickname for odometer-based reminders', () async {
-      await property(
+      property(
         forAll(
           combine3(
             _nonEmptyString,

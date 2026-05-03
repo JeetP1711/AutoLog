@@ -18,7 +18,7 @@ void main() {
     // ── Property-based tests ────────────────────────────────────────────────
 
     test('distance is strictly positive when current > previous', () async {
-      await property(
+      property(
         forAll(
           combine2(
             float(min: 0.0, max: 500_000.0, withNaN: false, withInfinities: false),
@@ -37,7 +37,7 @@ void main() {
     });
 
     test('mileage = distance / quantity for all fuel types', () async {
-      await property(
+      property(
         forAll(
           combine3(
             float(min: 0.01, max: 1_000.0, withNaN: false, withInfinities: false),

@@ -157,9 +157,9 @@ Arbitrary<Reminder> get _reminder => combine4(
 void main() {
   group('BackupService — Property 1: round-trip preserves all data', () {
     test('Vehicle round-trip via JSON', () async {
-      await property(
+      property(
         forAll(list(_vehicle, minLength: 0, maxLength: 5)),
-        (vehicles) {
+        (List<Vehicle> vehicles) {
           final payload = _buildPayload(
             vehicles: vehicles,
             fuelLogs: [],
@@ -180,9 +180,9 @@ void main() {
     });
 
     test('FuelLog round-trip via JSON', () async {
-      await property(
+      property(
         forAll(list(_fuelLog, minLength: 0, maxLength: 5)),
-        (logs) {
+        (List<dynamic> logs) {
           final payload = _buildPayload(
             vehicles: [],
             fuelLogs: logs,
@@ -202,9 +202,9 @@ void main() {
     });
 
     test('ServiceLog round-trip via JSON', () async {
-      await property(
+      property(
         forAll(list(_serviceLog, minLength: 0, maxLength: 5)),
-        (logs) {
+        (List<dynamic> logs) {
           final payload = _buildPayload(
             vehicles: [],
             fuelLogs: [],
@@ -224,9 +224,9 @@ void main() {
     });
 
     test('Document round-trip via JSON', () async {
-      await property(
+      property(
         forAll(list(_document, minLength: 0, maxLength: 5)),
-        (docs) {
+        (List<Document> docs) {
           final payload = _buildPayload(
             vehicles: [],
             fuelLogs: [],
@@ -246,9 +246,9 @@ void main() {
     });
 
     test('Reminder round-trip via JSON', () async {
-      await property(
+      property(
         forAll(list(_reminder, minLength: 0, maxLength: 5)),
-        (reminders) {
+        (List<Reminder> reminders) {
           final payload = _buildPayload(
             vehicles: [],
             fuelLogs: [],

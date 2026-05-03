@@ -24,7 +24,7 @@ void main() {
     // ── Property-based tests ────────────────────────────────────────────────
 
     test('nickname rejects whitespace-only strings', () async {
-      await property(
+      property(
         forAll(_whitespaceString),
         (ws) {
           expect(Validators.nickname(ws), isNotNull,
@@ -34,7 +34,7 @@ void main() {
     });
 
     test('numberPlate rejects whitespace-only strings', () async {
-      await property(
+      property(
         forAll(_whitespaceString),
         (ws) {
           expect(Validators.numberPlate(ws), isNotNull,
@@ -44,7 +44,7 @@ void main() {
     });
 
     test('odometer rejects whitespace-only strings', () async {
-      await property(
+      property(
         forAll(_whitespaceString),
         (ws) {
           expect(Validators.odometer(ws), isNotNull,
@@ -54,7 +54,7 @@ void main() {
     });
 
     test('quantity rejects whitespace-only strings', () async {
-      await property(
+      property(
         forAll(_whitespaceString),
         (ws) {
           expect(Validators.quantity(ws), isNotNull,
@@ -64,7 +64,7 @@ void main() {
     });
 
     test('price rejects whitespace-only strings', () async {
-      await property(
+      property(
         forAll(_whitespaceString),
         (ws) {
           expect(Validators.price(ws), isNotNull,
@@ -74,7 +74,7 @@ void main() {
     });
 
     test('cost rejects whitespace-only strings', () async {
-      await property(
+      property(
         forAll(_whitespaceString),
         (ws) {
           expect(Validators.cost(ws), isNotNull,
@@ -84,7 +84,7 @@ void main() {
     });
 
     test('serviceType rejects whitespace-only strings', () async {
-      await property(
+      property(
         forAll(_whitespaceString),
         (ws) {
           expect(Validators.serviceType(ws), isNotNull,
@@ -94,7 +94,7 @@ void main() {
     });
 
     test('expenseCategory rejects whitespace-only strings', () async {
-      await property(
+      property(
         forAll(_whitespaceString),
         (ws) {
           expect(Validators.expenseCategory(ws), isNotNull,

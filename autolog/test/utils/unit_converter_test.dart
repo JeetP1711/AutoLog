@@ -18,7 +18,7 @@ void main() {
     // ── Property-based tests ────────────────────────────────────────────────
 
     test('km → miles → km round-trip within ε = 1e-9', () async {
-      await property(
+      property(
         forAll(
           float(min: 0.0, max: 1_000_000.0, withNaN: false, withInfinities: false),
         ),
@@ -32,7 +32,7 @@ void main() {
     });
 
     test('miles → km → miles round-trip within ε = 1e-9', () async {
-      await property(
+      property(
         forAll(
           float(min: 0.0, max: 1_000_000.0, withNaN: false, withInfinities: false),
         ),
@@ -46,7 +46,7 @@ void main() {
     });
 
     test('convertDistance round-trip (km → miles → km)', () async {
-      await property(
+      property(
         forAll(
           float(min: 0.0, max: 1_000_000.0, withNaN: false, withInfinities: false),
         ),
