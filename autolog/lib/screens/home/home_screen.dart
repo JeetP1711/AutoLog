@@ -3,16 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../models/models.dart';
-import '../../providers/analytics_provider.dart';
-import '../../providers/document_provider.dart';
 import '../../providers/providers.dart';
-import '../../providers/vehicle_provider.dart';
 import '../../router.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/currency_formatter.dart';
 import '../../utils/date_formatter.dart';
-import '../../widgets/confirm_dialog.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/log_tile.dart';
 import '../../widgets/skeleton_loader.dart';

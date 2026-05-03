@@ -214,21 +214,21 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
 - [x] 22. Checkpoint — all screens and widgets
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 23. Widget tests
-  - [ ] 23.1 Write widget tests for `HomeScreen` (empty state, populated state, pull-to-refresh)
+- [x] 23. Widget tests
+  - [x] 23.1 Write widget tests for `HomeScreen` (empty state, populated state, pull-to-refresh)
     - Use `ProviderScope` overrides to inject mock repositories
     - _Requirements: 3.1, 3.2, 3.5_
-  - [ ] 23.2 Write widget tests for `VehicleDetailScreen` (tab navigation, correct data per tab)
+  - [x] 23.2 Write widget tests for `VehicleDetailScreen` (tab navigation, correct data per tab)
     - _Requirements: 5.11_
-  - [ ] 23.3 Write widget tests for `AddEditFuelLogScreen` (form validation, save triggers provider update)
+  - [x] 23.3 Write widget tests for `AddEditFuelLogScreen` (form validation, save triggers provider update)
     - _Requirements: 7.1, 7.2_
-  - [ ] 23.4 Write widget tests for `PinLockScreen` (correct PIN navigates away, incorrect PIN increments counter, lockout after 5 attempts)
+  - [x] 23.4 Write widget tests for `PinLockScreen` (correct PIN navigates away, incorrect PIN increments counter, lockout after 5 attempts)
     - _Requirements: 16.1, 16.2, 16.3_
-  - [ ] 23.5 Write widget tests for `AnalyticsScreen` (empty state placeholders, chart renders with 2+ data points)
+  - [x] 23.5 Write widget tests for `AnalyticsScreen` (empty state placeholders, chart renders with 2+ data points)
     - _Requirements: 12.3_
 
 - [ ] 24. Integration tests
-  - [ ] 24.1 Write integration test: full onboarding → add vehicle → add fuel log → verify home dashboard totals
+  - [-] 24.1 Write integration test: full onboarding → add vehicle → add fuel log → verify home dashboard totals
     - _Requirements: 2.2, 2.4, 5.2, 7.1, 3.1_
   - [ ] 24.2 Write integration test: export backup → clear data → import backup → verify data restored
     - _Requirements: 15.1, 15.2, 15.5_
