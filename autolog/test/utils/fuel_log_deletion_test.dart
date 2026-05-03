@@ -74,7 +74,7 @@ void main() {
             (base, deltas) => (base: base, d1: deltas.d1, d2: deltas.d2),
           ),
         ),
-        (triple) {
+        (triple) async {
           final odo0 = triple.base;
           final odo1 = odo0 + triple.d1; // middle entry
           final odo2 = odo1 + triple.d2; // following entry

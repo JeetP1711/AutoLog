@@ -22,7 +22,7 @@ void main() {
         forAll(
           float(min: 0.0, max: 1_000_000.0, withNaN: false, withInfinities: false),
         ),
-        (km) {
+        (km) async {
           final miles = UnitConverter.kmToMiles(km);
           final restored = UnitConverter.milesToKm(miles);
           expect(restored, closeTo(km, 1e-9),
@@ -36,7 +36,7 @@ void main() {
         forAll(
           float(min: 0.0, max: 1_000_000.0, withNaN: false, withInfinities: false),
         ),
-        (miles) {
+        (miles) async {
           final km = UnitConverter.milesToKm(miles);
           final restored = UnitConverter.kmToMiles(km);
           expect(restored, closeTo(miles, 1e-9),
@@ -50,7 +50,7 @@ void main() {
         forAll(
           float(min: 0.0, max: 1_000_000.0, withNaN: false, withInfinities: false),
         ),
-        (km) {
+        (km) async {
           final miles = UnitConverter.convertDistance(
             km,
             from: DistanceUnit.km,

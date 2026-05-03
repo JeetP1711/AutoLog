@@ -64,7 +64,7 @@ void main() {
             maxLength: 20,
           ),
         ),
-        (prices) {
+        (prices) async {
           final logs = prices.asMap().entries.map((e) => _fuelLog(
                 'f${e.key}',
                 DateTime(now.year, now.month, 1 + (e.key % 28)),
@@ -94,7 +94,7 @@ void main() {
             ),
           ),
         ),
-        (triple) {
+        (triple) async {
           final fuelLogs = triple.fuelPrices.asMap().entries.map((e) =>
               _fuelLog('f${e.key}', DateTime(now.year, 1 + (e.key % 12), 1), e.value)).toList();
           final serviceLogs = triple.serviceCosts.asMap().entries.map((e) =>

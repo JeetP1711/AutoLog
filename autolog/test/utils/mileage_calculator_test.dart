@@ -26,7 +26,7 @@ void main() {
             (previous, delta) => (previous: previous, delta: delta),
           ),
         ),
-        (pair) {
+        (pair) async {
           final current = pair.previous + pair.delta;
           final d = MileageCalculator.distance(current, pair.previous);
           expect(d, isNotNull);
@@ -50,7 +50,7 @@ void main() {
             ),
           ),
         ),
-        (triple) {
+        (triple) async {
           final mileage = MileageCalculator.calculate(
             distanceKm: triple.distance,
             quantity: triple.quantity,

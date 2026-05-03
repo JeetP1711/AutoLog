@@ -86,7 +86,7 @@ void main() {
     test('service log with nextDueDate creates exactly one reminder', () async {
       property(
         forAll(_futureDate),
-        (dueDate) {
+        (dueDate) async {
           final log = ServiceLog(
             id: 'sl1',
             vehicleId: 'v1',
@@ -107,7 +107,7 @@ void main() {
     test('service log with nextDueOdometerKm creates exactly one reminder', () async {
       property(
         forAll(_posOdo),
-        (odo) {
+        (odo) async {
           final log = ServiceLog(
             id: 'sl2',
             vehicleId: 'v1',
@@ -139,7 +139,7 @@ void main() {
     test('document with expiry > 30 days creates exactly two reminders', () async {
       property(
         forAll(integer(min: 31, max: 3650)),
-        (daysAhead) {
+        (daysAhead) async {
           final expiry = DateTime.now().add(Duration(days: daysAhead));
           final doc = Document(
             id: 'doc1',

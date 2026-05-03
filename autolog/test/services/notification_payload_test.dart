@@ -36,7 +36,7 @@ String buildNotificationBody(Reminder reminder, String vehicleNickname) {
 }
 
 String _reminderTypeLabel(ReminderType type) {
-  switch (type) {
+  switch (type) async {
     case ReminderType.insuranceExpiry:
       return 'Insurance Expiry';
     case ReminderType.pucExpiry:
@@ -81,7 +81,7 @@ void main() {
             (nickname, dueDate, type) => (nickname: nickname, dueDate: dueDate, type: type),
           ),
         ),
-        (triple) {
+        (triple) async {
           final reminder = Reminder(
             id: 'r1',
             vehicleId: 'v1',
@@ -115,7 +115,7 @@ void main() {
             (nickname, odo, type) => (nickname: nickname, odo: odo, type: type),
           ),
         ),
-        (triple) {
+        (triple) async {
           final reminder = Reminder(
             id: 'r2',
             vehicleId: 'v1',

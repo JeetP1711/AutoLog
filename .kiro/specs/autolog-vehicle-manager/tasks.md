@@ -239,7 +239,7 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
   - [x] 24.5 Write performance test: populate 10,000 fuel log entries via direct Hive writes; assert `FuelLogRepository.getAll()` completes in under 300 ms
     - _Requirements: 17.9_
 
-- [ ] 25. Release APK build
+- [x] 25. Release APK build
   - Configure `android/app/build.gradle` with a release signing config (keystore or debug key for CI)
   - Run `flutter build apk --release` and confirm the build completes without errors
   - Verify the APK installs and launches on an Android emulator or device

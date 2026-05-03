@@ -13,7 +13,7 @@ import 'package:autolog/utils/validators.dart';
 
 // Generates strings composed entirely of whitespace characters.
 Arbitrary<String> get _whitespaceString => integer(min: 1, max: 30).map(
-      (len) => List.generate(len, (i) {
+      (len) => List.generate(len, (i) async {
         const chars = [' ', '\t', '\n', '\r', ' ', ' '];
         return chars[i % chars.length];
       }).join(),
@@ -26,7 +26,7 @@ void main() {
     test('nickname rejects whitespace-only strings', () async {
       property(
         forAll(_whitespaceString),
-        (ws) {
+        (ws) async {
           expect(Validators.nickname(ws), isNotNull,
               reason: 'Whitespace-only nickname "$ws" must be rejected');
         },
@@ -36,7 +36,7 @@ void main() {
     test('numberPlate rejects whitespace-only strings', () async {
       property(
         forAll(_whitespaceString),
-        (ws) {
+        (ws) async {
           expect(Validators.numberPlate(ws), isNotNull,
               reason: 'Whitespace-only number plate "$ws" must be rejected');
         },
@@ -46,7 +46,7 @@ void main() {
     test('odometer rejects whitespace-only strings', () async {
       property(
         forAll(_whitespaceString),
-        (ws) {
+        (ws) async {
           expect(Validators.odometer(ws), isNotNull,
               reason: 'Whitespace-only odometer "$ws" must be rejected');
         },
@@ -56,7 +56,7 @@ void main() {
     test('quantity rejects whitespace-only strings', () async {
       property(
         forAll(_whitespaceString),
-        (ws) {
+        (ws) async {
           expect(Validators.quantity(ws), isNotNull,
               reason: 'Whitespace-only quantity "$ws" must be rejected');
         },
@@ -66,7 +66,7 @@ void main() {
     test('price rejects whitespace-only strings', () async {
       property(
         forAll(_whitespaceString),
-        (ws) {
+        (ws) async {
           expect(Validators.price(ws), isNotNull,
               reason: 'Whitespace-only price "$ws" must be rejected');
         },
@@ -76,7 +76,7 @@ void main() {
     test('cost rejects whitespace-only strings', () async {
       property(
         forAll(_whitespaceString),
-        (ws) {
+        (ws) async {
           expect(Validators.cost(ws), isNotNull,
               reason: 'Whitespace-only cost "$ws" must be rejected');
         },
@@ -86,7 +86,7 @@ void main() {
     test('serviceType rejects whitespace-only strings', () async {
       property(
         forAll(_whitespaceString),
-        (ws) {
+        (ws) async {
           expect(Validators.serviceType(ws), isNotNull,
               reason: 'Whitespace-only service type "$ws" must be rejected');
         },
@@ -96,7 +96,7 @@ void main() {
     test('expenseCategory rejects whitespace-only strings', () async {
       property(
         forAll(_whitespaceString),
-        (ws) {
+        (ws) async {
           expect(Validators.expenseCategory(ws), isNotNull,
               reason: 'Whitespace-only category "$ws" must be rejected');
         },

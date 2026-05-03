@@ -11,8 +11,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kiri_check/kiri_check.dart';
 
-import 'package:autolog/models/models.dart';
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Minimal log entry model (mirrors LogsScreen._LogEntry)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -97,7 +95,7 @@ Arbitrary<LogEntry> get _entry => combine5(
 void main() {
   group('LogFilter — Property 7: filter consistency', () {
     test('every returned entry satisfies all active filter criteria', () async {
-      property(
+      await property(
         forAll(
           combine3(
             list(_entry, minLength: 0, maxLength: 20),
@@ -107,7 +105,7 @@ void main() {
                 (entries: entries, query: query, cat: cat),
           ),
         ),
-        (triple) {
+        (triple) async {
           final results = applyFilters(
             triple.entries,
             searchQuery: triple.query,
@@ -115,11 +113,9 @@ void main() {
           );
 
           for (final r in results) {
-            // Category filter satisfied
             expect(r.category, triple.cat,
                 reason: 'Returned entry must match category filter');
 
-            // Search filter satisfied
             if (triple.query.isNotEmpty) {
               final q = triple.query.toLowerCase();
               final matches = r.title.toLowerCase().contains(q) ||
@@ -134,7 +130,7 @@ void main() {
     });
 
     test('no matching entry is absent from results', () async {
-      property(
+      await property(
         forAll(
           combine2(
             list(_entry, minLength: 0, maxLength: 20),
@@ -142,13 +138,12 @@ void main() {
             (entries, cat) => (entries: entries, cat: cat),
           ),
         ),
-        (pair) {
+        (pair) async {
           final results = applyFilters(
             pair.entries,
             categoryFilter: pair.cat,
           );
 
-          // Every entry that matches the filter must be in results
           final matching =
               pair.entries.where((e) => e.category == pair.cat).toList();
           for (final m in matching) {
@@ -161,7 +156,7 @@ void main() {
     });
 
     test('vehicle filter: only entries for selected vehicle are returned', () async {
-      property(
+      await property(
         forAll(
           combine2(
             list(_entry, minLength: 1, maxLength: 20),
@@ -169,7 +164,7 @@ void main() {
             (entries, vid) => (entries: entries, vid: vid),
           ),
         ),
-        (pair) {
+        (pair) async {
           final results = applyFilters(
             pair.entries,
             vehicleFilter: pair.vid,
@@ -182,7 +177,7 @@ void main() {
       );
     });
 
-    test('date range filter: only entries within range are returned', () async {
+    test('date range filter: only entries within range are returned', () {
       final start = DateTime(2023, 1, 1);
       final end = DateTime(2023, 12, 31);
 
@@ -216,9 +211,9 @@ void main() {
     });
 
     test('empty filter returns all entries', () async {
-      property(
+      await property(
         forAll(list(_entry, minLength: 0, maxLength: 20)),
-        (entries) {
+        (entries) async {
           final results = applyFilters(entries);
           expect(results.length, entries.length);
         },
