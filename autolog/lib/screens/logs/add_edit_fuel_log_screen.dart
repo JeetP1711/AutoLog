@@ -37,6 +37,15 @@ class _AddEditFuelLogScreenState extends ConsumerState<AddEditFuelLogScreen> {
   void initState() {
     super.initState();
     _selectedVehicleId = widget.vehicleId;
+    // Auto-select first vehicle if only one exists and none passed
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_selectedVehicleId == null) {
+        final vehicles = ref.read(vehicleProvider).valueOrNull ?? [];
+        if (vehicles.length == 1) {
+          setState(() => _selectedVehicleId = vehicles.first.id);
+        }
+      }
+    });
   }
 
   @override
@@ -61,11 +70,18 @@ class _AddEditFuelLogScreenState extends ConsumerState<AddEditFuelLogScreen> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
+
+    // Auto-select if only one vehicle
     if (_selectedVehicleId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a vehicle')),
-      );
-      return;
+      final vehicles = ref.read(vehicleProvider).valueOrNull ?? [];
+      if (vehicles.length == 1) {
+        _selectedVehicleId = vehicles.first.id;
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select a vehicle')),
+        );
+        return;
+      }
     }
 
     setState(() => _loading = true);
@@ -107,11 +123,18 @@ class _AddEditFuelLogScreenState extends ConsumerState<AddEditFuelLogScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final vehiclesAsync = ref.watch(vehicleProvider);
     final vehicles = vehiclesAsync.valueOrNull ?? [];
+
+    // Auto-select single vehicle
+    if (_selectedVehicleId == null && vehicles.length == 1) {
+      _selectedVehicleId = vehicles.first.id;
+    }
+
     final selectedVehicle = _selectedVehicleId != null
         ? vehicles.firstWhere((v) => v.id == _selectedVehicleId,
-            orElse: () => vehicles.first)
+            orElse: () => vehicles.isNotEmpty ? vehicles.first : throw StateError('no vehicles'))
         : null;
     final unit = selectedVehicle != null
         ? MileageCalculator.quantityUnit(selectedVehicle.fuelType,
@@ -119,142 +142,129 @@ class _AddEditFuelLogScreenState extends ConsumerState<AddEditFuelLogScreen> {
         : 'L';
 
     return Scaffold(
-      backgroundColor: AppColors.darkBackground,
       appBar: AppBar(
         title: Text(widget.logId != null ? 'Edit Fuel Log' : 'Add Fuel Log'),
         actions: [
           if (_loading)
             const Padding(
               padding: EdgeInsets.all(16),
-              child: SizedBox(
-                  width: 20,
-                  height: 20,
+              child: SizedBox(width: 20, height: 20,
                   child: CircularProgressIndicator(strokeWidth: 2)),
             )
           else
             TextButton(
               onPressed: _save,
               child: Text('Save',
-                  style: AppTextStyles.labelLarge
-                      .copyWith(color: AppColors.primaryBlue)),
+                  style: TextStyle(color: cs.primary, fontWeight: FontWeight.w600)),
             ),
         ],
       ),
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
           children: [
-            // Vehicle selector
-            if (vehicles.length > 1)
+            // Vehicle selector — only show when multiple vehicles
+            if (vehicles.length > 1) ...[
               DropdownButtonFormField<String>(
                 value: _selectedVehicleId,
                 decoration: const InputDecoration(labelText: 'Vehicle'),
                 items: vehicles
-                    .map((v) => DropdownMenuItem(
-                        value: v.id, child: Text(v.nickname)))
+                    .map((v) => DropdownMenuItem(value: v.id, child: Text(v.nickname)))
                     .toList(),
                 onChanged: (v) => setState(() => _selectedVehicleId = v),
-                dropdownColor: AppColors.darkSurface,
-                style: AppTextStyles.bodyMedium
-                    .copyWith(color: AppColors.textPrimaryDark),
               ),
+              const SizedBox(height: AppSpacing.md),
+            ],
+
+            // Date picker row
+            _DateRow(date: _date, onTap: _pickDate),
             const SizedBox(height: AppSpacing.md),
 
-            // Date
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.calendar_today_rounded,
-                  color: AppColors.primaryBlue),
-              title: Text(
-                'Date: ${_date.day}/${_date.month}/${_date.year}',
-                style: AppTextStyles.bodyMedium
-                    .copyWith(color: AppColors.textPrimaryDark),
-              ),
-              onTap: _pickDate,
-            ),
-            const SizedBox(height: AppSpacing.md),
-
-            // Quantity
             TextFormField(
               controller: _quantityCtrl,
-              keyboardType: TextInputType.number,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
               validator: Validators.quantity,
-              style: AppTextStyles.bodyMedium
-                  .copyWith(color: AppColors.textPrimaryDark),
-              decoration: InputDecoration(
-                labelText: 'Quantity ($unit)',
-                hintText: 'e.g. 40',
-              ),
+              decoration: InputDecoration(labelText: 'Quantity ($unit)', hintText: 'e.g. 40'),
             ),
             const SizedBox(height: AppSpacing.md),
 
-            // Total price
             TextFormField(
               controller: _priceCtrl,
-              keyboardType: TextInputType.number,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
               validator: Validators.price,
-              style: AppTextStyles.bodyMedium
-                  .copyWith(color: AppColors.textPrimaryDark),
-              decoration: const InputDecoration(
-                labelText: 'Total Price (₹)',
-                hintText: 'e.g. 3200',
-              ),
+              decoration: const InputDecoration(labelText: 'Total Price (₹)', hintText: 'e.g. 3200'),
             ),
             const SizedBox(height: AppSpacing.md),
 
-            // Odometer
             TextFormField(
               controller: _odometerCtrl,
-              keyboardType: TextInputType.number,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
               validator: Validators.odometer,
-              style: AppTextStyles.bodyMedium
-                  .copyWith(color: AppColors.textPrimaryDark),
-              decoration: const InputDecoration(
-                labelText: 'Odometer (km)',
-                hintText: 'e.g. 12500',
-              ),
+              decoration: const InputDecoration(labelText: 'Odometer (km)', hintText: 'e.g. 12500'),
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.sm),
 
-            // Full tank toggle
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: Text('Full Tank',
-                  style: AppTextStyles.bodyMedium
-                      .copyWith(color: AppColors.textPrimaryDark)),
-              subtitle: Text('Enable for mileage calculation',
-                  style: AppTextStyles.bodySmall
-                      .copyWith(color: AppColors.textSecondaryDark)),
+              title: const Text('Full Tank'),
+              subtitle: const Text('Required for mileage calculation'),
               value: _isFullTank,
               onChanged: (v) => setState(() => _isFullTank = v),
-              activeColor: AppColors.primaryBlue,
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.sm),
 
-            // Station name (optional)
             TextFormField(
               controller: _stationCtrl,
-              style: AppTextStyles.bodyMedium
-                  .copyWith(color: AppColors.textPrimaryDark),
-              decoration: const InputDecoration(
-                labelText: 'Fuel Station (optional)',
-                hintText: 'e.g. HP Petrol Pump',
-              ),
+              decoration: const InputDecoration(labelText: 'Fuel Station (optional)'),
             ),
             const SizedBox(height: AppSpacing.md),
 
-            // Notes (optional)
             TextFormField(
               controller: _notesCtrl,
-              maxLines: 3,
-              style: AppTextStyles.bodyMedium
-                  .copyWith(color: AppColors.textPrimaryDark),
-              decoration: const InputDecoration(
-                labelText: 'Notes (optional)',
-              ),
+              maxLines: 2,
+              decoration: const InputDecoration(labelText: 'Notes (optional)'),
             ),
             const SizedBox(height: AppSpacing.xxl),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Shared date row widget
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _DateRow extends StatelessWidget {
+  const _DateRow({required this.date, required this.onTap});
+  final DateTime date;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md, vertical: AppSpacing.sm + AppSpacing.xs),
+        decoration: BoxDecoration(
+          border: Border.all(color: cs.outline),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.calendar_today_rounded, size: 18, color: cs.primary),
+            const SizedBox(width: AppSpacing.sm),
+            Text(
+              '${date.day}/${date.month}/${date.year}',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const Spacer(),
+            Icon(Icons.edit_calendar_rounded, size: 16, color: cs.onSurfaceVariant),
           ],
         ),
       ),

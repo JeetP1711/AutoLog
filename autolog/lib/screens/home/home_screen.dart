@@ -23,8 +23,7 @@ class HomeScreen extends ConsumerWidget {
     final currency = ref.watch(currencySymbolProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.darkBackground,
-      appBar: AppBar(
+            appBar: AppBar(
         title: const Text('AutoLog'),
         actions: [
           _AlertsBadge(ref: ref),

@@ -153,8 +153,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     final isLastPage = _currentPage == _slides.length - 1;
 
     return Scaffold(
-      backgroundColor: AppColors.darkBackground,
-      body: SafeArea(
+            body: SafeArea(
         child: Column(
           children: [
             // ── Skip button ─────────────────────────────────────────────────

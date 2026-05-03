@@ -24,8 +24,7 @@ class SettingsScreen extends ConsumerWidget {
     final themeMode = ref.watch(themeControllerProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.darkBackground,
-      appBar: AppBar(title: const Text('Settings')),
+            appBar: AppBar(title: const Text('Settings')),
       body: ListView(
         children: [
           // ── Appearance ───────────────────────────────────────────────────

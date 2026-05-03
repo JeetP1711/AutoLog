@@ -245,7 +245,7 @@ Implement the AutoLog Flutter Android app incrementally, starting from project s
   - Verify the APK installs and launches on an Android emulator or device
   - _Requirements: 18.6_
 
-- [ ] 26. Final checkpoint — full test suite and release build
+- [x] 26. Final checkpoint — full test suite and release build
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes

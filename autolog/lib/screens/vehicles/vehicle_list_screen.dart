@@ -19,8 +19,7 @@ class VehicleListScreen extends ConsumerWidget {
     final vehiclesAsync = ref.watch(vehicleProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.darkBackground,
-      appBar: AppBar(title: const Text('My Vehicles')),
+            appBar: AppBar(title: const Text('My Vehicles')),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push(AppRoutes.vehiclesAdd),
         icon: const Icon(Icons.add_rounded),

@@ -20,8 +20,7 @@ class ReminderCenterScreen extends ConsumerWidget {
     final vehicleNames = {for (final v in vehicles) v.id: v.nickname};
 
     return Scaffold(
-      backgroundColor: AppColors.darkBackground,
-      appBar: AppBar(title: const Text('Reminders')),
+            appBar: AppBar(title: const Text('Reminders')),
       body: remindersAsync.when(
         loading: () => ListView(
           children: const [
@@ -79,9 +78,7 @@ class ReminderCenterScreen extends ConsumerWidget {
                   ),
                   title: Text(
                     reminder.title,
-                    style: AppTextStyles.titleSmall
-                        .copyWith(color: AppColors.textPrimaryDark),
-                  ),
+                        ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

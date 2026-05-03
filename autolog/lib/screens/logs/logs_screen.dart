@@ -70,8 +70,7 @@ class _LogsScreenState extends ConsumerState<LogsScreen> {
         expenseAsync.isLoading;
 
     return Scaffold(
-      backgroundColor: AppColors.darkBackground,
-      appBar: AppBar(
+            appBar: AppBar(
         title: const Text('Activity Log'),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(56),
@@ -80,8 +79,6 @@ class _LogsScreenState extends ConsumerState<LogsScreen> {
                 AppSpacing.md, 0, AppSpacing.md, AppSpacing.sm),
             child: TextField(
               onChanged: (v) => setState(() => _searchQuery = v),
-              style: AppTextStyles.bodyMedium
-                  .copyWith(color: AppColors.textPrimaryDark),
               decoration: InputDecoration(
                 hintText: 'Search logs...',
                 prefixIcon: const Icon(Icons.search_rounded,

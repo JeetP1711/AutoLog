@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_colors.dart';
 import '../theme/app_theme.dart';
 
 /// A premium stat card showing a label, value, and optional icon.
@@ -24,7 +23,9 @@ class StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = iconColor ?? AppColors.primaryBlue;
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    final color = iconColor ?? cs.primary;
 
     return Card(
       child: InkWell(
@@ -52,9 +53,7 @@ class StatCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       label,
-                      style: AppTextStyles.labelMedium.copyWith(
-                        color: AppColors.textSecondaryDark,
-                      ),
+                      style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -64,10 +63,7 @@ class StatCard extends StatelessWidget {
               const SizedBox(height: AppSpacing.sm),
               Text(
                 value,
-                style: AppTextStyles.titleLarge.copyWith(
-                  color: AppColors.textPrimaryDark,
-                  fontWeight: FontWeight.w700,
-                ),
+                style: tt.titleLarge?.copyWith(fontWeight: FontWeight.w700),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -75,9 +71,7 @@ class StatCard extends StatelessWidget {
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   subtitle!,
-                  style: AppTextStyles.labelSmall.copyWith(
-                    color: AppColors.textSecondaryDark,
-                  ),
+                  style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                 ),
               ],
             ],

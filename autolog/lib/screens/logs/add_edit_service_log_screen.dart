@@ -5,21 +5,13 @@ import 'package:go_router/go_router.dart';
 import '../../models/models.dart';
 import '../../providers/service_log_provider.dart';
 import '../../providers/vehicle_provider.dart';
-import '../../theme/app_colors.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/validators.dart';
 
 const _serviceTypes = [
-  'Oil Change',
-  'Brake Service',
-  'General Service',
-  'Washing',
-  'Detailing',
-  'Tyre Rotation',
-  'Battery Replacement',
-  'Engine Repair',
-  'AC Repair',
-  'Custom',
+  'Oil Change', 'Brake Service', 'General Service', 'Washing',
+  'Detailing', 'Tyre Rotation', 'Battery Replacement',
+  'Engine Repair', 'AC Repair', 'Custom',
 ];
 
 class AddEditServiceLogScreen extends ConsumerStatefulWidget {
@@ -32,8 +24,7 @@ class AddEditServiceLogScreen extends ConsumerStatefulWidget {
       _AddEditServiceLogScreenState();
 }
 
-class _AddEditServiceLogScreenState
-    extends ConsumerState<AddEditServiceLogScreen> {
+class _AddEditServiceLogScreenState extends ConsumerState<AddEditServiceLogScreen> {
   final _formKey = GlobalKey<FormState>();
   final _costCtrl = TextEditingController();
   final _odometerCtrl = TextEditingController();
@@ -52,16 +43,18 @@ class _AddEditServiceLogScreenState
   void initState() {
     super.initState();
     _selectedVehicleId = widget.vehicleId;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_selectedVehicleId == null) {
+        final vehicles = ref.read(vehicleProvider).valueOrNull ?? [];
+        if (vehicles.length == 1) setState(() => _selectedVehicleId = vehicles.first.id);
+      }
+    });
   }
 
   @override
   void dispose() {
-    _costCtrl.dispose();
-    _odometerCtrl.dispose();
-    _garageCtrl.dispose();
-    _notesCtrl.dispose();
-    _customTypeCtrl.dispose();
-    _nextDueOdoCtrl.dispose();
+    _costCtrl.dispose(); _odometerCtrl.dispose(); _garageCtrl.dispose();
+    _notesCtrl.dispose(); _customTypeCtrl.dispose(); _nextDueOdoCtrl.dispose();
     super.dispose();
   }
 
@@ -74,34 +67,27 @@ class _AddEditServiceLogScreenState
       firstDate: isNextDue ? DateTime.now() : DateTime(2000),
       lastDate: DateTime(2040),
     );
-    if (picked != null) {
-      setState(() {
-        if (isNextDue) {
-          _nextDueDate = picked;
-        } else {
-          _date = picked;
-        }
-      });
-    }
+    if (picked != null) setState(() => isNextDue ? _nextDueDate = picked : _date = picked);
   }
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedVehicleId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a vehicle')),
-      );
-      return;
+      final vehicles = ref.read(vehicleProvider).valueOrNull ?? [];
+      if (vehicles.length == 1) {
+        _selectedVehicleId = vehicles.first.id;
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select a vehicle')));
+        return;
+      }
     }
 
     setState(() => _loading = true);
     try {
       final vehicles = ref.read(vehicleProvider).valueOrNull ?? [];
-      final vehicle =
-          vehicles.firstWhere((v) => v.id == _selectedVehicleId!);
-
-      final resolvedType =
-          _serviceType == 'Custom' ? _customTypeCtrl.text.trim() : _serviceType;
+      final vehicle = vehicles.firstWhere((v) => v.id == _selectedVehicleId!);
+      final resolvedType = _serviceType == 'Custom' ? _customTypeCtrl.text.trim() : _serviceType;
 
       final log = ServiceLog(
         id: widget.logId ?? newId(),
@@ -110,29 +96,20 @@ class _AddEditServiceLogScreenState
         serviceType: resolvedType,
         cost: double.parse(_costCtrl.text.trim()),
         odometerKm: _odometerCtrl.text.trim().isNotEmpty
-            ? double.parse(_odometerCtrl.text.trim())
-            : null,
-        garageName: _garageCtrl.text.trim().isEmpty
-            ? null
-            : _garageCtrl.text.trim(),
+            ? double.parse(_odometerCtrl.text.trim()) : null,
+        garageName: _garageCtrl.text.trim().isEmpty ? null : _garageCtrl.text.trim(),
         notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
         nextDueDate: _nextDueDate,
         nextDueOdometerKm: _nextDueOdoCtrl.text.trim().isNotEmpty
-            ? double.parse(_nextDueOdoCtrl.text.trim())
-            : null,
+            ? double.parse(_nextDueOdoCtrl.text.trim()) : null,
       );
 
-      await ref
-          .read(serviceLogProvider(_selectedVehicleId!).notifier)
+      await ref.read(serviceLogProvider(_selectedVehicleId!).notifier)
           .saveServiceLog(log, vehicle.nickname);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Service log saved'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+          const SnackBar(content: Text('Service log saved'), behavior: SnackBarBehavior.floating));
         context.pop();
       }
     } finally {
@@ -142,172 +119,139 @@ class _AddEditServiceLogScreenState
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final vehicles = ref.watch(vehicleProvider).valueOrNull ?? [];
+    if (_selectedVehicleId == null && vehicles.length == 1) {
+      _selectedVehicleId = vehicles.first.id;
+    }
 
     return Scaffold(
-      backgroundColor: AppColors.darkBackground,
       appBar: AppBar(
         title: Text(widget.logId != null ? 'Edit Service' : 'Add Service'),
         actions: [
           if (_loading)
-            const Padding(
-              padding: EdgeInsets.all(16),
-              child: SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2)),
-            )
+            const Padding(padding: EdgeInsets.all(16),
+              child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)))
           else
-            TextButton(
-              onPressed: _save,
-              child: Text('Save',
-                  style: AppTextStyles.labelLarge
-                      .copyWith(color: AppColors.primaryBlue)),
-            ),
+            TextButton(onPressed: _save,
+              child: Text('Save', style: TextStyle(color: cs.primary, fontWeight: FontWeight.w600))),
         ],
       ),
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
           children: [
-            if (vehicles.length > 1)
+            if (vehicles.length > 1) ...[
               DropdownButtonFormField<String>(
                 value: _selectedVehicleId,
                 decoration: const InputDecoration(labelText: 'Vehicle'),
-                items: vehicles
-                    .map((v) => DropdownMenuItem(
-                        value: v.id, child: Text(v.nickname)))
-                    .toList(),
+                items: vehicles.map((v) => DropdownMenuItem(value: v.id, child: Text(v.nickname))).toList(),
                 onChanged: (v) => setState(() => _selectedVehicleId = v),
-                dropdownColor: AppColors.darkSurface,
-                style: AppTextStyles.bodyMedium
-                    .copyWith(color: AppColors.textPrimaryDark),
               ),
+              const SizedBox(height: AppSpacing.md),
+            ],
+
+            _DatePickerRow(label: 'Date', date: _date, onTap: () => _pickDate(false)),
             const SizedBox(height: AppSpacing.md),
 
-            // Date
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.calendar_today_rounded,
-                  color: AppColors.primaryBlue),
-              title: Text(
-                'Date: ${_date.day}/${_date.month}/${_date.year}',
-                style: AppTextStyles.bodyMedium
-                    .copyWith(color: AppColors.textPrimaryDark),
-              ),
-              onTap: () => _pickDate(false),
-            ),
-            const SizedBox(height: AppSpacing.md),
-
-            // Service type
             DropdownButtonFormField<String>(
               value: _serviceType,
               decoration: const InputDecoration(labelText: 'Service Type'),
-              items: _serviceTypes
-                  .map((t) => DropdownMenuItem(value: t, child: Text(t)))
-                  .toList(),
+              items: _serviceTypes.map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
               onChanged: (v) => setState(() => _serviceType = v!),
-              dropdownColor: AppColors.darkSurface,
-              style: AppTextStyles.bodyMedium
-                  .copyWith(color: AppColors.textPrimaryDark),
             ),
             if (_serviceType == 'Custom') ...[
               const SizedBox(height: AppSpacing.md),
               TextFormField(
                 controller: _customTypeCtrl,
-                validator: (v) =>
-                    v == null || v.trim().isEmpty ? 'Enter service type' : null,
-                style: AppTextStyles.bodyMedium
-                    .copyWith(color: AppColors.textPrimaryDark),
-                decoration: const InputDecoration(
-                    labelText: 'Custom Service Type'),
+                validator: (v) => v == null || v.trim().isEmpty ? 'Enter service type' : null,
+                decoration: const InputDecoration(labelText: 'Custom Service Type'),
               ),
             ],
             const SizedBox(height: AppSpacing.md),
 
-            // Cost
             TextFormField(
               controller: _costCtrl,
-              keyboardType: TextInputType.number,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
               validator: Validators.cost,
-              style: AppTextStyles.bodyMedium
-                  .copyWith(color: AppColors.textPrimaryDark),
-              decoration: const InputDecoration(
-                labelText: 'Cost (₹)',
-                hintText: 'e.g. 2500',
-              ),
+              decoration: const InputDecoration(labelText: 'Cost (₹)', hintText: 'e.g. 2500'),
             ),
             const SizedBox(height: AppSpacing.md),
 
-            // Odometer (optional)
             TextFormField(
               controller: _odometerCtrl,
-              keyboardType: TextInputType.number,
-              style: AppTextStyles.bodyMedium
-                  .copyWith(color: AppColors.textPrimaryDark),
-              decoration: const InputDecoration(
-                labelText: 'Odometer (optional)',
-                hintText: 'km at time of service',
-              ),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(labelText: 'Odometer (optional)', hintText: 'km at service'),
             ),
             const SizedBox(height: AppSpacing.md),
 
-            // Garage name (optional)
             TextFormField(
               controller: _garageCtrl,
-              style: AppTextStyles.bodyMedium
-                  .copyWith(color: AppColors.textPrimaryDark),
-              decoration: const InputDecoration(
-                labelText: 'Garage / Workshop (optional)',
-              ),
+              decoration: const InputDecoration(labelText: 'Garage / Workshop (optional)'),
             ),
             const SizedBox(height: AppSpacing.md),
 
-            // Notes (optional)
             TextFormField(
               controller: _notesCtrl,
-              maxLines: 3,
-              style: AppTextStyles.bodyMedium
-                  .copyWith(color: AppColors.textPrimaryDark),
+              maxLines: 2,
               decoration: const InputDecoration(labelText: 'Notes (optional)'),
             ),
             const SizedBox(height: AppSpacing.lg),
 
-            // Next due date (optional)
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.event_rounded,
-                  color: AppColors.warning),
-              title: Text(
-                _nextDueDate != null
-                    ? 'Next Due: ${_nextDueDate!.day}/${_nextDueDate!.month}/${_nextDueDate!.year}'
-                    : 'Set Next Due Date (optional)',
-                style: AppTextStyles.bodyMedium
-                    .copyWith(color: AppColors.textPrimaryDark),
-              ),
+            _DatePickerRow(
+              label: _nextDueDate != null
+                  ? 'Next Due: ${_nextDueDate!.day}/${_nextDueDate!.month}/${_nextDueDate!.year}'
+                  : 'Set Next Due Date (optional)',
+              date: _nextDueDate,
+              onTap: () => _pickDate(true),
               trailing: _nextDueDate != null
                   ? IconButton(
-                      icon: const Icon(Icons.clear_rounded,
-                          color: AppColors.textSecondaryDark),
-                      onPressed: () => setState(() => _nextDueDate = null),
-                    )
+                      icon: const Icon(Icons.clear_rounded, size: 18),
+                      onPressed: () => setState(() => _nextDueDate = null))
                   : null,
-              onTap: () => _pickDate(true),
             ),
+            const SizedBox(height: AppSpacing.md),
 
-            // Next due odometer (optional)
             TextFormField(
               controller: _nextDueOdoCtrl,
-              keyboardType: TextInputType.number,
-              style: AppTextStyles.bodyMedium
-                  .copyWith(color: AppColors.textPrimaryDark),
-              decoration: const InputDecoration(
-                labelText: 'Next Due Odometer (optional)',
-                hintText: 'km for next service',
-              ),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(labelText: 'Next Due Odometer (optional)', hintText: 'km'),
             ),
             const SizedBox(height: AppSpacing.xxl),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DatePickerRow extends StatelessWidget {
+  const _DatePickerRow({required this.label, required this.onTap, this.date, this.trailing});
+  final String label;
+  final DateTime? date;
+  final VoidCallback onTap;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm + AppSpacing.xs),
+        decoration: BoxDecoration(
+          border: Border.all(color: cs.outline),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.calendar_today_rounded, size: 18, color: cs.primary),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(child: Text(label, style: Theme.of(context).textTheme.bodyMedium)),
+            if (trailing != null) trailing!
+            else Icon(Icons.edit_calendar_rounded, size: 16, color: cs.onSurfaceVariant),
           ],
         ),
       ),

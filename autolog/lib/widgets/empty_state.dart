@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_colors.dart';
 import '../theme/app_theme.dart';
 
 /// A centered empty-state illustration with icon, title, optional subtitle,
@@ -23,6 +22,9 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.xl),
@@ -30,53 +32,31 @@ class EmptyState extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 88,
-              height: 88,
+              width: 80,
+              height: 80,
               decoration: BoxDecoration(
-                color: AppColors.primaryBlue.withAlpha(20),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: AppColors.primaryBlue.withAlpha(50),
-                  width: 1.5,
-                ),
+                color: cs.primary.withAlpha(20),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: cs.primary.withAlpha(50), width: 1.5),
               ),
-              child: Icon(icon, size: 44, color: AppColors.primaryBlue.withAlpha(180)),
+              child: Icon(icon, size: 40, color: cs.primary.withAlpha(180)),
             ),
             const SizedBox(height: AppSpacing.lg),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: AppTextStyles.titleMedium.copyWith(
-                color: AppColors.textPrimaryDark,
-              ),
-            ),
+            Text(title,
+                textAlign: TextAlign.center,
+                style: tt.titleMedium),
             if (subtitle != null) ...[
               const SizedBox(height: AppSpacing.sm),
-              Text(
-                subtitle!,
-                textAlign: TextAlign.center,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textSecondaryDark,
-                  height: 1.5,
-                ),
-              ),
+              Text(subtitle!,
+                  textAlign: TextAlign.center,
+                  style: tt.bodyMedium?.copyWith(
+                      color: cs.onSurfaceVariant, height: 1.5)),
             ],
             if (actionLabel != null && onAction != null) ...[
               const SizedBox(height: AppSpacing.xl),
-              ElevatedButton(
+              FilledButton(
                 onPressed: onAction,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryBlue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.xl,
-                    vertical: AppSpacing.sm + AppSpacing.xs,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Text(actionLabel!, style: AppTextStyles.labelLarge),
+                child: Text(actionLabel!),
               ),
             ],
           ],

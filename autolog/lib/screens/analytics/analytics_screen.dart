@@ -19,8 +19,7 @@ class AnalyticsScreen extends ConsumerWidget {
     final year = DateTime.now().year;
 
     return Scaffold(
-      backgroundColor: AppColors.darkBackground,
-      appBar: AppBar(title: const Text('Analytics')),
+            appBar: AppBar(title: const Text('Analytics')),
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.md),
         children: [
@@ -430,9 +429,7 @@ class _ChartCard extends StatelessWidget {
                 const SizedBox(width: AppSpacing.xs),
                 Text(
                   title,
-                  style: AppTextStyles.titleSmall
-                      .copyWith(color: AppColors.textPrimaryDark),
-                ),
+                    ),
               ],
             ),
             const SizedBox(height: AppSpacing.md),

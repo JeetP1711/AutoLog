@@ -173,8 +173,7 @@ class _PinLockScreenState extends ConsumerState<PinLockScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.darkBackground,
-      body: SafeArea(
+            body: SafeArea(
         child: Column(
           children: [
             const SizedBox(height: AppSpacing.xxl),

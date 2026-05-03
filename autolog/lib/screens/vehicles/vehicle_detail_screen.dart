@@ -78,8 +78,7 @@ class _VehicleDetailViewState extends ConsumerState<_VehicleDetailView>
     final unitLabel = UnitConverter.label(distanceUnit);
 
     return Scaffold(
-      backgroundColor: AppColors.darkBackground,
-      appBar: AppBar(
+            appBar: AppBar(
         title: Text(v.nickname),
         actions: [
           IconButton(

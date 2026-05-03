@@ -9,8 +9,7 @@ class AboutScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.darkBackground,
-      appBar: AppBar(title: const Text('About')),
+            appBar: AppBar(title: const Text('About')),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.xl),

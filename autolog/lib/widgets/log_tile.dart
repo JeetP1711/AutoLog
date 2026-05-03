@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_colors.dart';
 import '../theme/app_theme.dart';
 
 /// A list tile for displaying a log entry (fuel / service / expense / document).
@@ -30,6 +29,9 @@ class LogTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
     final tile = Card(
       margin: const EdgeInsets.symmetric(
         horizontal: AppSpacing.md,
@@ -42,7 +44,6 @@ class LogTile extends StatelessWidget {
           padding: const EdgeInsets.all(AppSpacing.md),
           child: Row(
             children: [
-              // Icon
               Container(
                 width: 44,
                 height: 44,
@@ -53,50 +54,36 @@ class LogTile extends StatelessWidget {
                 child: Icon(icon, size: 22, color: iconColor),
               ),
               const SizedBox(width: AppSpacing.md),
-              // Content
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      title,
-                      style: AppTextStyles.titleSmall.copyWith(
-                        color: AppColors.textPrimaryDark,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    Text(title,
+                        style: tt.titleSmall,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis),
                     const SizedBox(height: 2),
-                    Text(
-                      subtitle,
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textSecondaryDark,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    Text(subtitle,
+                        style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis),
                   ],
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
-              // Right side: amount + date
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   if (amount != null)
                     Text(
                       '${currencySymbol ?? '₹'}$amount',
-                      style: AppTextStyles.titleSmall.copyWith(
-                        color: AppColors.primaryBlue,
+                      style: tt.titleSmall?.copyWith(
+                        color: cs.primary,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                  Text(
-                    date,
-                    style: AppTextStyles.labelSmall.copyWith(
-                      color: AppColors.textSecondaryDark,
-                    ),
-                  ),
+                  Text(date,
+                      style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
                 ],
               ),
             ],
@@ -118,7 +105,7 @@ class LogTile extends StatelessWidget {
           vertical: AppSpacing.xs,
         ),
         decoration: BoxDecoration(
-          color: AppColors.error.withAlpha(200),
+          color: cs.error.withAlpha(200),
           borderRadius: BorderRadius.circular(16),
         ),
         child: const Icon(Icons.delete_rounded, color: Colors.white, size: 28),

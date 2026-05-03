@@ -187,8 +187,7 @@ class _AddEditVehicleScreenState extends ConsumerState<AddEditVehicleScreen> {
     final isEditing = widget.vehicleId != null;
 
     return Scaffold(
-      backgroundColor: AppColors.darkBackground,
-      appBar: AppBar(
+            appBar: AppBar(
         title: Text(isEditing ? 'Edit Vehicle' : 'Add Vehicle'),
         actions: [
           if (_loading)
@@ -312,9 +311,7 @@ class _AddEditVehicleScreenState extends ConsumerState<AddEditVehicleScreen> {
                 _purchaseDate != null
                     ? 'Purchase Date: ${_purchaseDate!.day}/${_purchaseDate!.month}/${_purchaseDate!.year}'
                     : 'Purchase Date',
-                style: AppTextStyles.bodyMedium
-                    .copyWith(color: AppColors.textPrimaryDark),
-              ),
+                ),
               onTap: _pickPurchaseDate,
             ),
             ListTile(
@@ -323,9 +320,7 @@ class _AddEditVehicleScreenState extends ConsumerState<AddEditVehicleScreen> {
                   color: AppColors.primaryBlue),
               title: Text(
                 _photoPath != null ? 'Photo selected' : 'Add Photo',
-                style: AppTextStyles.bodyMedium
-                    .copyWith(color: AppColors.textPrimaryDark),
-              ),
+                ),
               onTap: _pickPhoto,
             ),
             const SizedBox(height: AppSpacing.md),
@@ -380,7 +375,6 @@ class _AddEditVehicleScreenState extends ConsumerState<AddEditVehicleScreen> {
       onChanged: enabled ? onChanged : null,
       style: AppTextStyles.bodyMedium
           .copyWith(color: AppColors.textPrimaryDark),
-      dropdownColor: AppColors.darkSurface,
     );
   }
 }
