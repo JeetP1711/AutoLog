@@ -6,56 +6,139 @@ import 'vehicle_provider.dart';
 
 const _analytics = AnalyticsService();
 
-/// Provides monthly fuel spend data for the given year.
+// ─────────────────────────────────────────────────────────────────────────────
+// Raw data providers — watch Hive boxes via stream so they stay fresh
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// All fuel logs — reactive stream provider.
+final allFuelLogsStreamProvider = StreamProvider<List<FuelLog>>((ref) {
+  return ref.read(fuelLogRepositoryProvider).watchAll();
+});
+
+/// All service logs — reactive stream provider.
+final allServiceLogsStreamProvider = StreamProvider<List<ServiceLog>>((ref) {
+  return ref.read(serviceLogRepositoryProvider).watchAll();
+});
+
+/// All expense logs — reactive stream provider.
+final allExpenseLogsStreamProvider = StreamProvider<List<ExpenseLog>>((ref) {
+  return ref.read(expenseLogRepositoryProvider).watchAll();
+});
+
+// Keep the FutureProvider aliases for backward compatibility with logs screen
+final allFuelLogsProvider = FutureProvider<List<FuelLog>>((ref) async {
+  return ref.read(fuelLogRepositoryProvider).getAll();
+});
+
+final allServiceLogsProvider = FutureProvider<List<ServiceLog>>((ref) async {
+  return ref.read(serviceLogRepositoryProvider).getAll();
+});
+
+final allExpenseLogsProvider = FutureProvider<List<ExpenseLog>>((ref) async {
+  return ref.read(expenseLogRepositoryProvider).getAll();
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Analytics providers — derived from stream providers so they auto-update
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Monthly fuel spend for the given year — updates when fuel logs change.
 final monthlyFuelSpendProvider =
-    FutureProvider.family<List<MonthlyFuelPoint>, int>((ref, year) async {
-  final logs = await ref.read(fuelLogRepositoryProvider).getAll();
-  return _analytics.getMonthlyFuelSpend(logs, year);
+    Provider.family<AsyncValue<List<MonthlyFuelPoint>>, int>((ref, year) {
+  final logsAsync = ref.watch(allFuelLogsStreamProvider);
+  return logsAsync.whenData(
+    (logs) => _analytics.getMonthlyFuelSpend(logs, year),
+  );
 });
 
-/// Provides mileage trend data for a specific vehicle.
+/// Mileage trend for a specific vehicle — updates when fuel logs change.
 final mileageTrendProvider =
-    FutureProvider.family<List<MileageTrendPoint>, String>((ref, vehicleId) async {
-  final logs = await ref.read(fuelLogRepositoryProvider).getByVehicle(vehicleId);
-  return _analytics.getMileageTrend(logs);
+    Provider.family<AsyncValue<List<MileageTrendPoint>>, String>((ref, vehicleId) {
+  final logsAsync = ref.watch(allFuelLogsStreamProvider);
+  return logsAsync.whenData(
+    (logs) => _analytics.getMileageTrend(
+      logs.where((l) => l.vehicleId == vehicleId).toList(),
+    ),
+  );
 });
 
-/// Provides expense breakdown across all vehicles.
+/// Expense breakdown — updates when any log type changes.
 final expenseBreakdownProvider =
-    FutureProvider<List<ExpenseBreakdownEntry>>((ref) async {
-  final fuelLogs = await ref.read(fuelLogRepositoryProvider).getAll();
-  final serviceLogs = await ref.read(serviceLogRepositoryProvider).getAll();
-  final expenseLogs = await ref.read(expenseLogRepositoryProvider).getAll();
-  return _analytics.getExpenseBreakdown(expenseLogs, fuelLogs, serviceLogs);
+    Provider<AsyncValue<List<ExpenseBreakdownEntry>>>((ref) {
+  final fuelAsync = ref.watch(allFuelLogsStreamProvider);
+  final serviceAsync = ref.watch(allServiceLogsStreamProvider);
+  final expenseAsync = ref.watch(allExpenseLogsStreamProvider);
+
+  if (fuelAsync.isLoading || serviceAsync.isLoading || expenseAsync.isLoading) {
+    return const AsyncValue.loading();
+  }
+  if (fuelAsync.hasError) return AsyncValue.error(fuelAsync.error!, fuelAsync.stackTrace!);
+
+  final fuelLogs = fuelAsync.valueOrNull ?? [];
+  final serviceLogs = serviceAsync.valueOrNull ?? [];
+  final expenseLogs = expenseAsync.valueOrNull ?? [];
+
+  return AsyncValue.data(
+    _analytics.getExpenseBreakdown(expenseLogs, fuelLogs, serviceLogs),
+  );
 });
 
-/// Provides ownership cost for a specific vehicle.
-final ownershipCostProvider =
-    FutureProvider.family<OwnershipCostData, Vehicle>((ref, vehicle) async {
-  final fuelLogs = await ref.read(fuelLogRepositoryProvider).getByVehicle(vehicle.id);
-  final serviceLogs = await ref.read(serviceLogRepositoryProvider).getByVehicle(vehicle.id);
-  final expenseLogs = await ref.read(expenseLogRepositoryProvider).getByVehicle(vehicle.id);
-  return _analytics.getOwnershipCost(vehicle, fuelLogs, serviceLogs, expenseLogs);
-});
-
-/// Provides the monthly fuel spend total for the current month.
-final currentMonthFuelSpendProvider = FutureProvider<double>((ref) async {
-  final logs = await ref.read(fuelLogRepositoryProvider).getAll();
-  return _analytics.monthlyFuelSpend(logs);
-});
-
-/// Provides the yearly total spend for the current year.
-final currentYearTotalSpendProvider = FutureProvider<double>((ref) async {
-  final fuelLogs = await ref.read(fuelLogRepositoryProvider).getAll();
-  final serviceLogs = await ref.read(serviceLogRepositoryProvider).getAll();
-  final expenseLogs = await ref.read(expenseLogRepositoryProvider).getAll();
-  return _analytics.yearlyTotalSpend(fuelLogs, serviceLogs, expenseLogs);
-});
-
-/// Provides yearly maintenance cost data.
+/// Yearly maintenance cost — updates when service/expense logs change.
 final yearlyMaintenanceCostProvider =
-    FutureProvider<List<YearlyMaintenancePoint>>((ref) async {
-  final serviceLogs = await ref.read(serviceLogRepositoryProvider).getAll();
-  final expenseLogs = await ref.read(expenseLogRepositoryProvider).getAll();
-  return _analytics.getYearlyMaintenanceCost(serviceLogs, expenseLogs);
+    Provider<AsyncValue<List<YearlyMaintenancePoint>>>((ref) {
+  final serviceAsync = ref.watch(allServiceLogsStreamProvider);
+  final expenseAsync = ref.watch(allExpenseLogsStreamProvider);
+
+  if (serviceAsync.isLoading || expenseAsync.isLoading) {
+    return const AsyncValue.loading();
+  }
+
+  final serviceLogs = serviceAsync.valueOrNull ?? [];
+  final expenseLogs = expenseAsync.valueOrNull ?? [];
+
+  return AsyncValue.data(
+    _analytics.getYearlyMaintenanceCost(serviceLogs, expenseLogs),
+  );
+});
+
+/// Monthly fuel spend total for the current month — reactive.
+final currentMonthFuelSpendProvider = Provider<AsyncValue<double>>((ref) {
+  final logsAsync = ref.watch(allFuelLogsStreamProvider);
+  return logsAsync.whenData((logs) => _analytics.monthlyFuelSpend(logs));
+});
+
+/// Yearly total spend — reactive.
+final currentYearTotalSpendProvider = Provider<AsyncValue<double>>((ref) {
+  final fuelAsync = ref.watch(allFuelLogsStreamProvider);
+  final serviceAsync = ref.watch(allServiceLogsStreamProvider);
+  final expenseAsync = ref.watch(allExpenseLogsStreamProvider);
+
+  if (fuelAsync.isLoading || serviceAsync.isLoading || expenseAsync.isLoading) {
+    return const AsyncValue.loading();
+  }
+
+  return AsyncValue.data(_analytics.yearlyTotalSpend(
+    fuelAsync.valueOrNull ?? [],
+    serviceAsync.valueOrNull ?? [],
+    expenseAsync.valueOrNull ?? [],
+  ));
+});
+
+/// Ownership cost for a specific vehicle — reactive.
+final ownershipCostProvider =
+    Provider.family<AsyncValue<OwnershipCostData>, Vehicle>((ref, vehicle) {
+  final fuelAsync = ref.watch(allFuelLogsStreamProvider);
+  final serviceAsync = ref.watch(allServiceLogsStreamProvider);
+  final expenseAsync = ref.watch(allExpenseLogsStreamProvider);
+
+  if (fuelAsync.isLoading || serviceAsync.isLoading || expenseAsync.isLoading) {
+    return const AsyncValue.loading();
+  }
+
+  return AsyncValue.data(_analytics.getOwnershipCost(
+    vehicle,
+    (fuelAsync.valueOrNull ?? []).where((l) => l.vehicleId == vehicle.id).toList(),
+    (serviceAsync.valueOrNull ?? []).where((l) => l.vehicleId == vehicle.id).toList(),
+    (expenseAsync.valueOrNull ?? []).where((l) => l.vehicleId == vehicle.id).toList(),
+  ));
 });
