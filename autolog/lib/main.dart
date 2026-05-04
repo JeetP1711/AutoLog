@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
 
 import 'data/hive_boxes.dart';
 import 'models/document.dart';
@@ -18,6 +19,9 @@ import 'theme/theme_controller.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialise timezone data (required by flutter_local_notifications)
+  tz.initializeTimeZones();
 
   // Initialise SharedPreferences
   final prefs = await SharedPreferences.getInstance();
