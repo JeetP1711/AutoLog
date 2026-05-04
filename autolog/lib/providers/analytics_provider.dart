@@ -26,17 +26,8 @@ final allExpenseLogsStreamProvider = StreamProvider<List<ExpenseLog>>((ref) {
 });
 
 // Keep the FutureProvider aliases for backward compatibility with logs screen
-final allFuelLogsProvider = FutureProvider<List<FuelLog>>((ref) async {
-  return ref.read(fuelLogRepositoryProvider).getAll();
-});
-
-final allServiceLogsProvider = FutureProvider<List<ServiceLog>>((ref) async {
-  return ref.read(serviceLogRepositoryProvider).getAll();
-});
-
-final allExpenseLogsProvider = FutureProvider<List<ExpenseLog>>((ref) async {
-  return ref.read(expenseLogRepositoryProvider).getAll();
-});
+// Note: allFuelLogsProvider, allServiceLogsProvider, allExpenseLogsProvider
+// are defined in their respective provider files. Do not redefine here.
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Analytics providers — derived from stream providers so they auto-update
