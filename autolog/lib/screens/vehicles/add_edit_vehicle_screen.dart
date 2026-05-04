@@ -447,6 +447,7 @@ class _FuelTypeSelector extends StatelessWidget {
       (FuelType.petrol, 'Petrol'),
       (FuelType.diesel, 'Diesel'),
       (FuelType.cng, 'CNG'),
+      (FuelType.petrolCng, 'Petrol + CNG'),
       (FuelType.electric, 'Electric'),
       (FuelType.hybrid, 'Hybrid'),
       (FuelType.lpg, 'LPG'),
@@ -464,7 +465,7 @@ class _FuelTypeSelector extends StatelessWidget {
           onSelected: (_) => onChanged(t.$1),
           selectedColor: AppColors.primaryBlue,
           labelStyle: AppTextStyles.labelMedium.copyWith(
-            color: isSelected ? Colors.white : AppColors.textPrimaryDark,
+            color: isSelected ? Colors.white : null,
           ),
         );
       }).toList(),
