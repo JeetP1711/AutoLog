@@ -29,6 +29,8 @@ class FuelTypeAdapter extends TypeAdapter<FuelType> {
         return FuelType.hydrogen;
       case 7:
         return FuelType.custom;
+      case 8:
+        return FuelType.petrolCng;
       default:
         return FuelType.petrol;
     }
@@ -60,6 +62,9 @@ class FuelTypeAdapter extends TypeAdapter<FuelType> {
         break;
       case FuelType.custom:
         writer.writeByte(7);
+        break;
+      case FuelType.petrolCng:
+        writer.writeByte(8);
         break;
     }
   }
