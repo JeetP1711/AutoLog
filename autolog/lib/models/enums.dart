@@ -28,6 +28,10 @@ enum FuelType {
 
   @HiveField(7)
   custom,
+
+  /// Petrol + CNG dual-fuel (bi-fuel) — can track both petrol and CNG fills.
+  @HiveField(8)
+  petrolCng,
 }
 
 /// Vehicle body type.
