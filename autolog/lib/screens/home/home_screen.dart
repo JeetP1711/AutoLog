@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../models/models.dart';
 import '../../providers/providers.dart';
+import '../../providers/analytics_provider.dart';
 import '../../router.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_theme.dart';
@@ -80,8 +81,9 @@ class _HomeBody extends ConsumerStatefulWidget {
 class _HomeBodyState extends ConsumerState<_HomeBody> {
   Future<void> _refresh() async {
     ref.invalidate(vehicleProvider);
-    ref.invalidate(currentMonthFuelSpendProvider);
-    ref.invalidate(currentYearTotalSpendProvider);
+    ref.invalidate(allFuelLogsStreamProvider);
+    ref.invalidate(allServiceLogsStreamProvider);
+    ref.invalidate(allExpenseLogsStreamProvider);
     ref.invalidate(expiringSoonProvider);
     ref.invalidate(allServiceLogsProvider);
   }
