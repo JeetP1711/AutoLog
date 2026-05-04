@@ -111,6 +111,7 @@ class VehicleCard extends StatelessWidget {
       case FuelType.hybrid: return 'Hybrid';
       case FuelType.lpg: return 'LPG';
       case FuelType.hydrogen: return 'H₂';
+      case FuelType.petrolCng: return 'Petrol+CNG';
       case FuelType.custom: return 'Custom';
     }
   }
