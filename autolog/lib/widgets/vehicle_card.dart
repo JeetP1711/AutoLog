@@ -125,6 +125,7 @@ class VehicleCard extends StatelessWidget {
       case FuelType.hybrid: return AppColors.fuelHybrid;
       case FuelType.lpg: return AppColors.fuelLpg;
       case FuelType.hydrogen: return AppColors.fuelHydrogen;
+      case FuelType.petrolCng: return AppColors.fuelCng;
       case FuelType.custom: return AppColors.primaryBlue;
     }
   }
