@@ -33,11 +33,13 @@ class _AddEditFuelLogScreenState extends ConsumerState<AddEditFuelLogScreen> {
   bool _loading = false;
   String? _selectedVehicleId;
 
+  // For Petrol+CNG vehicles, user picks which fuel they're filling
+  FuelType? _activeFuelType; // null = use vehicle's default
+
   @override
   void initState() {
     super.initState();
     _selectedVehicleId = widget.vehicleId;
-    // Auto-select first vehicle if only one exists and none passed
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_selectedVehicleId == null) {
         final vehicles = ref.read(vehicleProvider).valueOrNull ?? [];
@@ -68,10 +70,17 @@ class _AddEditFuelLogScreenState extends ConsumerState<AddEditFuelLogScreen> {
     if (picked != null) setState(() => _date = picked);
   }
 
+  FuelType _resolvedFuelType(Vehicle? vehicle) {
+    if (vehicle == null) return FuelType.petrol;
+    if (vehicle.fuelType == FuelType.petrolCng) {
+      return _activeFuelType ?? FuelType.petrol;
+    }
+    return vehicle.fuelType;
+  }
+
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
 
-    // Auto-select if only one vehicle
     if (_selectedVehicleId == null) {
       final vehicles = ref.read(vehicleProvider).valueOrNull ?? [];
       if (vehicles.length == 1) {
@@ -88,6 +97,7 @@ class _AddEditFuelLogScreenState extends ConsumerState<AddEditFuelLogScreen> {
     try {
       final vehicles = ref.read(vehicleProvider).valueOrNull ?? [];
       final vehicle = vehicles.firstWhere((v) => v.id == _selectedVehicleId!);
+      final fuelType = _resolvedFuelType(vehicle);
 
       final log = FuelLog(
         id: widget.logId ?? newId(),
@@ -97,22 +107,17 @@ class _AddEditFuelLogScreenState extends ConsumerState<AddEditFuelLogScreen> {
         totalPrice: double.parse(_priceCtrl.text.trim()),
         odometerKm: double.parse(_odometerCtrl.text.trim()),
         isFullTank: _isFullTank,
-        stationName: _stationCtrl.text.trim().isEmpty
-            ? null
-            : _stationCtrl.text.trim(),
+        stationName: _stationCtrl.text.trim().isEmpty ? null : _stationCtrl.text.trim(),
         notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
       );
 
       await ref
           .read(fuelLogProvider(_selectedVehicleId!).notifier)
-          .saveFuelLog(log, vehicle.fuelType);
+          .saveFuelLog(log, fuelType);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Fuel log saved'),
-            behavior: SnackBarBehavior.floating,
-          ),
+          const SnackBar(content: Text('Fuel log saved'), behavior: SnackBarBehavior.floating),
         );
         context.pop();
       }
@@ -127,7 +132,6 @@ class _AddEditFuelLogScreenState extends ConsumerState<AddEditFuelLogScreen> {
     final vehiclesAsync = ref.watch(vehicleProvider);
     final vehicles = vehiclesAsync.valueOrNull ?? [];
 
-    // Auto-select single vehicle
     if (_selectedVehicleId == null && vehicles.length == 1) {
       _selectedVehicleId = vehicles.first.id;
     }
@@ -136,10 +140,11 @@ class _AddEditFuelLogScreenState extends ConsumerState<AddEditFuelLogScreen> {
         ? vehicles.firstWhere((v) => v.id == _selectedVehicleId,
             orElse: () => vehicles.isNotEmpty ? vehicles.first : throw StateError('no vehicles'))
         : null;
-    final unit = selectedVehicle != null
-        ? MileageCalculator.quantityUnit(selectedVehicle.fuelType,
-            customUnit: selectedVehicle.customFuelUnit)
-        : 'L';
+
+    final isPetrolCng = selectedVehicle?.fuelType == FuelType.petrolCng;
+    final resolvedFuelType = _resolvedFuelType(selectedVehicle);
+    final unit = MileageCalculator.quantityUnit(resolvedFuelType,
+        customUnit: selectedVehicle?.customFuelUnit);
 
     return Scaffold(
       appBar: AppBar(
@@ -148,8 +153,7 @@ class _AddEditFuelLogScreenState extends ConsumerState<AddEditFuelLogScreen> {
           if (_loading)
             const Padding(
               padding: EdgeInsets.all(16),
-              child: SizedBox(width: 20, height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2)),
+              child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
             )
           else
             TextButton(
@@ -164,7 +168,7 @@ class _AddEditFuelLogScreenState extends ConsumerState<AddEditFuelLogScreen> {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
           children: [
-            // Vehicle selector — only show when multiple vehicles
+            // Vehicle selector
             if (vehicles.length > 1) ...[
               DropdownButtonFormField<String>(
                 value: _selectedVehicleId,
@@ -172,12 +176,38 @@ class _AddEditFuelLogScreenState extends ConsumerState<AddEditFuelLogScreen> {
                 items: vehicles
                     .map((v) => DropdownMenuItem(value: v.id, child: Text(v.nickname)))
                     .toList(),
-                onChanged: (v) => setState(() => _selectedVehicleId = v),
+                onChanged: (v) => setState(() {
+                  _selectedVehicleId = v;
+                  _activeFuelType = null; // reset fuel type selection
+                }),
               ),
               const SizedBox(height: AppSpacing.md),
             ],
 
-            // Date picker row
+            // Petrol+CNG fuel type selector
+            if (isPetrolCng) ...[
+              Text('Filling with:', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: cs.onSurfaceVariant)),
+              const SizedBox(height: AppSpacing.xs),
+              Row(
+                children: [
+                  _FuelChip(
+                    label: 'Petrol (L)',
+                    selected: (_activeFuelType ?? FuelType.petrol) == FuelType.petrol,
+                    onTap: () => setState(() => _activeFuelType = FuelType.petrol),
+                    cs: cs,
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  _FuelChip(
+                    label: 'CNG (kg)',
+                    selected: _activeFuelType == FuelType.cng,
+                    onTap: () => setState(() => _activeFuelType = FuelType.cng),
+                    cs: cs,
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.md),
+            ],
+
             _DateRow(date: _date, onTap: _pickDate),
             const SizedBox(height: AppSpacing.md),
 
@@ -234,8 +264,38 @@ class _AddEditFuelLogScreenState extends ConsumerState<AddEditFuelLogScreen> {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Shared date row widget
+// Shared widgets
 // ─────────────────────────────────────────────────────────────────────────────
+
+class _FuelChip extends StatelessWidget {
+  const _FuelChip({required this.label, required this.selected, required this.onTap, required this.cs});
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  final ColorScheme cs;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: selected ? cs.primary : cs.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: selected ? cs.primary : cs.outline),
+        ),
+        child: Text(label,
+            style: TextStyle(
+              color: selected ? cs.onPrimary : cs.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
+            )),
+      ),
+    );
+  }
+}
 
 class _DateRow extends StatelessWidget {
   const _DateRow({required this.date, required this.onTap});
@@ -259,10 +319,8 @@ class _DateRow extends StatelessWidget {
           children: [
             Icon(Icons.calendar_today_rounded, size: 18, color: cs.primary),
             const SizedBox(width: AppSpacing.sm),
-            Text(
-              '${date.day}/${date.month}/${date.year}',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
+            Text('${date.day}/${date.month}/${date.year}',
+                style: Theme.of(context).textTheme.bodyMedium),
             const Spacer(),
             Icon(Icons.edit_calendar_rounded, size: 16, color: cs.onSurfaceVariant),
           ],
