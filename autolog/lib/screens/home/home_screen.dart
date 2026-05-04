@@ -89,7 +89,6 @@ class _HomeBodyState extends ConsumerState<_HomeBody> {
     ref.invalidate(expiringSoonProvider);
     ref.invalidate(allServiceLogsProvider);
   }
-
   @override
   Widget build(BuildContext context) {
     final monthlySpendAsync = ref.watch(currentMonthFuelSpendProvider);
