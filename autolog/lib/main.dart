@@ -20,43 +20,45 @@ import 'theme/theme_controller.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialise timezone data (required by flutter_local_notifications)
-  tz.initializeTimeZones();
+  bool initFailed = false;
+  SharedPreferences? prefs;
 
-  // Initialise SharedPreferences
-  final prefs = await SharedPreferences.getInstance();
-
-  // Initialise Hive
-  await Hive.initFlutter();
-
-  // Register enum adapters
-  Hive.registerAdapter(FuelTypeAdapter());
-  Hive.registerAdapter(VehicleTypeAdapter());
-  Hive.registerAdapter(DistanceUnitAdapter());
-  Hive.registerAdapter(ReminderTypeAdapter());
-  // Register model adapters
-  Hive.registerAdapter(VehicleAdapter());
-  Hive.registerAdapter(FuelLogAdapter());
-  Hive.registerAdapter(ServiceLogAdapter());
-  Hive.registerAdapter(ExpenseLogAdapter());
-  Hive.registerAdapter(DocumentAdapter());
-  Hive.registerAdapter(ReminderAdapter());
-
-  // Open all Hive boxes
-  bool dbInitFailed = false;
   try {
+    // Initialise timezone data (required by flutter_local_notifications)
+    tz.initializeTimeZones();
+
+    // Initialise SharedPreferences
+    prefs = await SharedPreferences.getInstance();
+
+    // Initialise Hive
+    await Hive.initFlutter();
+
+    // Register enum adapters
+    Hive.registerAdapter(FuelTypeAdapter());
+    Hive.registerAdapter(VehicleTypeAdapter());
+    Hive.registerAdapter(DistanceUnitAdapter());
+    Hive.registerAdapter(ReminderTypeAdapter());
+    // Register model adapters
+    Hive.registerAdapter(VehicleAdapter());
+    Hive.registerAdapter(FuelLogAdapter());
+    Hive.registerAdapter(ServiceLogAdapter());
+    Hive.registerAdapter(ExpenseLogAdapter());
+    Hive.registerAdapter(DocumentAdapter());
+    Hive.registerAdapter(ReminderAdapter());
+
+    // Open all Hive boxes
     await HiveBoxes.init();
   } catch (e, stackTrace) {
-    debugPrint('Failed to open Hive boxes: $e\n$stackTrace');
-    dbInitFailed = true;
+    debugPrint('Critical initialization failed: $e\n$stackTrace');
+    initFailed = true;
   }
 
   runApp(
     ProviderScope(
       overrides: [
-        sharedPreferencesProvider.overrideWithValue(prefs),
+        if (prefs != null) sharedPreferencesProvider.overrideWithValue(prefs),
       ],
-      child: dbInitFailed
+      child: initFailed
           ? const _DatabaseInitErrorApp()
           : const AutoLogApp(),
     ),
