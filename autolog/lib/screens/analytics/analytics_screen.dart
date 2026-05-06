@@ -60,8 +60,8 @@ class _MonthlyFuelChart extends ConsumerWidget {
         error: (_, __) => const _ChartError(),
         data: (points) {
           final nonZero = points.where((p) => p.totalSpend > 0).toList();
-          if (nonZero.length < 2) {
-            return const _EmptyChart(message: 'Add more fuel logs to see trends');
+          if (nonZero.isEmpty) {
+            return const _EmptyChart(message: 'Add fuel logs to see monthly spend');
           }
           return SizedBox(
             height: 180,
@@ -146,9 +146,9 @@ class _MileageTrendChart extends ConsumerWidget {
         loading: () => const SkeletonCard(height: 180),
         error: (_, __) => const _ChartError(),
         data: (points) {
-          if (points.length < 2) {
+          if (points.isEmpty) {
             return const _EmptyChart(
-                message: 'Add more full-tank fuel logs to see mileage trends');
+                message: 'Add full-tank fuel logs to see mileage trends');
           }
           return SizedBox(
             height: 180,
@@ -195,6 +195,11 @@ class _MileageTrendChart extends ConsumerWidget {
                   ),
                 ),
                 borderData: FlBorderData(show: false),
+                // Adjust minX/maxX and minY/maxY if there's only one point
+                minX: points.length == 1 ? -0.5 : null,
+                maxX: points.length == 1 ? 0.5 : null,
+                minY: points.length == 1 ? (points.first.mileage - 1).clamp(0, double.infinity) : null,
+                maxY: points.length == 1 ? points.first.mileage + 1 : null,
               ),
             ),
           );
@@ -309,10 +314,10 @@ class _YearlyMaintenanceChart extends ConsumerWidget {
         error: (_, __) => const _ChartError(),
         data: (points) {
           final nonZero = points.where((p) => p.totalCost > 0).toList();
-          if (nonZero.length < 2) {
+          if (nonZero.isEmpty) {
             return const _EmptyChart(
                 message:
-                    'Add more service and expense logs to see yearly trends');
+                    'Add service or expense logs to see yearly trends');
           }
           return SizedBox(
             height: 180,
