@@ -44,16 +44,18 @@ class ExpenseLogRepository {
   }
 
   /// Emits the full list for [vehicleId] whenever the box changes.
-  Stream<List<ExpenseLog>> watchByVehicle(String vehicleId) {
-    return _box.watch().map((_) => _box.values
+  Stream<List<ExpenseLog>> watchByVehicle(String vehicleId) async* {
+    yield await getByVehicle(vehicleId);
+    yield* _box.watch().map((_) => _box.values
         .where((l) => l.vehicleId == vehicleId)
         .toList()
       ..sort((a, b) => b.date.compareTo(a.date)));
   }
 
   /// Emits all expense logs whenever the box changes.
-  Stream<List<ExpenseLog>> watchAll() {
-    return _box.watch().map((_) => _box.values.toList()
+  Stream<List<ExpenseLog>> watchAll() async* {
+    yield await getAll();
+    yield* _box.watch().map((_) => _box.values.toList()
       ..sort((a, b) => b.date.compareTo(a.date)));
   }
 }

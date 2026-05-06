@@ -31,8 +31,9 @@ class VehicleRepository {
   }
 
   /// Emits the full vehicle list whenever the box changes.
-  Stream<List<Vehicle>> watchAll() {
-    return _box.watch().map((_) => _box.values.toList()
+  Stream<List<Vehicle>> watchAll() async* {
+    yield await getAll();
+    yield* _box.watch().map((_) => _box.values.toList()
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt)));
   }
 }

@@ -53,16 +53,18 @@ class DocumentRepository {
   }
 
   /// Emits the full list for [vehicleId] whenever the box changes.
-  Stream<List<Document>> watchByVehicle(String vehicleId) {
-    return _box.watch().map((_) => _box.values
+  Stream<List<Document>> watchByVehicle(String vehicleId) async* {
+    yield await getByVehicle(vehicleId);
+    yield* _box.watch().map((_) => _box.values
         .where((d) => d.vehicleId == vehicleId)
         .toList()
       ..sort((a, b) => a.expiryDate.compareTo(b.expiryDate)));
   }
 
   /// Emits all documents whenever the box changes.
-  Stream<List<Document>> watchAll() {
-    return _box.watch().map((_) => _box.values.toList()
+  Stream<List<Document>> watchAll() async* {
+    yield await getAll();
+    yield* _box.watch().map((_) => _box.values.toList()
       ..sort((a, b) => a.expiryDate.compareTo(b.expiryDate)));
   }
 }
