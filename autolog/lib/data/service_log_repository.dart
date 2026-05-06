@@ -44,16 +44,18 @@ class ServiceLogRepository {
   }
 
   /// Emits the full list for [vehicleId] whenever the box changes.
-  Stream<List<ServiceLog>> watchByVehicle(String vehicleId) {
-    return _box.watch().map((_) => _box.values
+  Stream<List<ServiceLog>> watchByVehicle(String vehicleId) async* {
+    yield await getByVehicle(vehicleId);
+    yield* _box.watch().map((_) => _box.values
         .where((l) => l.vehicleId == vehicleId)
         .toList()
       ..sort((a, b) => b.date.compareTo(a.date)));
   }
 
   /// Emits all service logs whenever the box changes.
-  Stream<List<ServiceLog>> watchAll() {
-    return _box.watch().map((_) => _box.values.toList()
+  Stream<List<ServiceLog>> watchAll() async* {
+    yield await getAll();
+    yield* _box.watch().map((_) => _box.values.toList()
       ..sort((a, b) => b.date.compareTo(a.date)));
   }
 }
