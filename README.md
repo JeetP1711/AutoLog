@@ -211,7 +211,7 @@ AutoLog is currently under active development and testing.
 
 ```text
 Google Drive APK Link:
-[ Add APK Link Here ]
+[https://drive.google.com/uc?export=download&id=1CZpE5RpRPCx2x-OvE0o1t8Xc5Lu0VMJ7]
 ```
 
 ---
