@@ -131,7 +131,7 @@ class ReminderCenterScreen extends ConsumerWidget {
                         ),
                       );
                     },
-                    itemCount: reminders.length,
+                    childCount: reminders.length,
                   ),
                 ),
               );
