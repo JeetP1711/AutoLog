@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-
-import '../../theme/app_colors.dart';
 import '../../theme/app_theme.dart';
 
 class AboutScreen extends StatelessWidget {
@@ -8,63 +6,68 @@ class AboutScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
     return Scaffold(
-            appBar: AppBar(title: const Text('About')),
+      backgroundColor: cs.surface,
+      appBar: AppBar(
+        backgroundColor: cs.surface,
+        elevation: 0,
+        centerTitle: true,
+        title: Text('About', style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w900)),
+      ),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.xl),
+          padding: const EdgeInsets.symmetric(horizontal: 40),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                width: 96,
-                height: 96,
+                width: 100,
+                height: 100,
                 decoration: BoxDecoration(
-                  color: AppColors.primaryBlue.withAlpha(26),
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: AppColors.primaryBlue.withAlpha(77),
-                    width: 1.5,
+                  gradient: LinearGradient(
+                    colors: [cs.primary, cs.primary.withAlpha(180)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
+                  borderRadius: BorderRadius.circular(28),
+                  boxShadow: [
+                    BoxShadow(color: cs.primary.withAlpha(60), blurRadius: 20, offset: const Offset(0, 8)),
+                  ],
                 ),
-                child: const Icon(
-                  Icons.directions_car_rounded,
-                  size: 52,
-                  color: AppColors.primaryBlue,
-                ),
+                child: const Icon(Icons.auto_graph_rounded, size: 50, color: Colors.white),
               ),
-              const SizedBox(height: AppSpacing.xl),
+              const SizedBox(height: 32),
               Text(
                 'AutoLog',
-                style: AppTextStyles.headlineMedium.copyWith(
-                  color: AppColors.textPrimaryDark,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.0,
-                ),
+                style: tt.headlineMedium?.copyWith(fontWeight: FontWeight.w900, letterSpacing: -1, color: cs.onSurface),
               ),
-              const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: 8),
               Text(
-                'Track Every Mile',
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textSecondaryDark,
-                  letterSpacing: 0.5,
-                ),
+                'Track Every Mile. Locally.',
+                style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w600),
               ),
-              const SizedBox(height: AppSpacing.md),
-              Text(
-                'Version 1.0.0',
-                style: AppTextStyles.labelMedium.copyWith(
-                  color: AppColors.textDisabledDark,
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerHighest.withAlpha(150),
+                  borderRadius: BorderRadius.circular(20),
                 ),
+                child: Text('Version 1.0.3', style: tt.labelSmall?.copyWith(fontWeight: FontWeight.w900, color: cs.primary)),
               ),
-              const SizedBox(height: AppSpacing.xxl),
+              const SizedBox(height: 48),
               Text(
-                'A premium personal offline vehicle management app.\nTrack fuel, service, expenses, and documents for all your vehicles — 100% offline.',
+                'AutoLog is a premium, offline-first utility designed for automotive enthusiasts. We believe your vehicle data is personal, which is why everything stays on your device.',
                 textAlign: TextAlign.center,
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.textSecondaryDark,
-                  height: 1.6,
-                ),
+                style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant, height: 1.8, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 64),
+              Text(
+                '© 2026 AutoLog App',
+                style: tt.labelSmall?.copyWith(color: cs.outline, fontWeight: FontWeight.w600),
               ),
             ],
           ),
