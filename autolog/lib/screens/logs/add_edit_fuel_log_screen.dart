@@ -5,8 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../models/models.dart';
 import '../../providers/fuel_log_provider.dart';
 import '../../providers/vehicle_provider.dart';
-import '../../theme/app_colors.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/date_formatter.dart';
 import '../../utils/mileage_calculator.dart';
 import '../../utils/validators.dart';
 
@@ -16,8 +16,7 @@ class AddEditFuelLogScreen extends ConsumerStatefulWidget {
   final String? vehicleId;
 
   @override
-  ConsumerState<AddEditFuelLogScreen> createState() =>
-      _AddEditFuelLogScreenState();
+  ConsumerState<AddEditFuelLogScreen> createState() => _AddEditFuelLogScreenState();
 }
 
 class _AddEditFuelLogScreenState extends ConsumerState<AddEditFuelLogScreen> {
@@ -32,9 +31,7 @@ class _AddEditFuelLogScreenState extends ConsumerState<AddEditFuelLogScreen> {
   bool _isFullTank = true;
   bool _loading = false;
   String? _selectedVehicleId;
-
-  // For Petrol+CNG vehicles, user picks which fuel they're filling
-  FuelType? _activeFuelType; // null = use vehicle's default
+  FuelType? _activeFuelType;
 
   @override
   void initState() {
@@ -80,17 +77,9 @@ class _AddEditFuelLogScreenState extends ConsumerState<AddEditFuelLogScreen> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
-
     if (_selectedVehicleId == null) {
-      final vehicles = ref.read(vehicleProvider).valueOrNull ?? [];
-      if (vehicles.length == 1) {
-        _selectedVehicleId = vehicles.first.id;
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select a vehicle')),
-        );
-        return;
-      }
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a vehicle')));
+      return;
     }
 
     setState(() => _loading = true);
@@ -111,14 +100,9 @@ class _AddEditFuelLogScreenState extends ConsumerState<AddEditFuelLogScreen> {
         notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
       );
 
-      await ref
-          .read(fuelLogProvider(_selectedVehicleId!).notifier)
-          .saveFuelLog(log, fuelType);
+      await ref.read(fuelLogProvider(_selectedVehicleId!).notifier).saveFuelLog(log, fuelType);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Fuel log saved'), behavior: SnackBarBehavior.floating),
-        );
         context.pop();
       }
     } finally {
@@ -129,201 +113,249 @@ class _AddEditFuelLogScreenState extends ConsumerState<AddEditFuelLogScreen> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final vehiclesAsync = ref.watch(vehicleProvider);
-    final vehicles = vehiclesAsync.valueOrNull ?? [];
+    final tt = Theme.of(context).textTheme;
+    final vehicles = ref.watch(vehicleProvider).valueOrNull ?? [];
 
-    if (_selectedVehicleId == null && vehicles.length == 1) {
-      _selectedVehicleId = vehicles.first.id;
-    }
-
-    final selectedVehicle = _selectedVehicleId != null
-        ? vehicles.firstWhere((v) => v.id == _selectedVehicleId,
-            orElse: () => vehicles.isNotEmpty ? vehicles.first : throw StateError('no vehicles'))
-        : null;
+    final selectedVehicle = _selectedVehicleId != null ? vehicles.firstWhere((v) => v.id == _selectedVehicleId, orElse: () => vehicles.first) : (vehicles.length == 1 ? vehicles.first : null);
 
     final isPetrolCng = selectedVehicle?.fuelType == FuelType.petrolCng;
     final resolvedFuelType = _resolvedFuelType(selectedVehicle);
-    final unit = MileageCalculator.quantityUnit(resolvedFuelType,
-        customUnit: selectedVehicle?.customFuelUnit);
+    final unit = MileageCalculator.quantityUnit(resolvedFuelType, customUnit: selectedVehicle?.customFuelUnit);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.logId != null ? 'Edit Fuel Log' : 'Add Fuel Log'),
-        actions: [
-          if (_loading)
-            const Padding(
-              padding: EdgeInsets.all(16),
-              child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
-            )
-          else
-            TextButton(
-              onPressed: _save,
-              child: Text('Save',
-                  style: TextStyle(color: cs.primary, fontWeight: FontWeight.w600)),
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 120,
+            pinned: true,
+            elevation: 0,
+            backgroundColor: cs.surface,
+            flexibleSpace: FlexibleSpaceBar(
+              centerTitle: false,
+              titlePadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              title: Text(
+                widget.logId != null ? 'Edit Fuel Entry' : 'Refuel Log',
+                style: tt.headlineSmall?.copyWith(fontWeight: FontWeight.w900, letterSpacing: -1),
+              ),
             ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 120),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (vehicles.length > 1) ...[
+                        _SectionHeader(title: 'Which vehicle?', icon: Icons.directions_car_rounded),
+                        DropdownButtonFormField<String>(
+                          value: _selectedVehicleId,
+                          items: vehicles.map((v) => DropdownMenuItem(value: v.id, child: Text(v.nickname))).toList(),
+                          onChanged: (v) => setState(() {
+                            _selectedVehicleId = v;
+                            _activeFuelType = null;
+                          }),
+                          decoration: _inputDecoration('Select Vehicle'),
+                        ),
+                        const SizedBox(height: 24),
+                      ],
+                      if (isPetrolCng) ...[
+                        _SectionHeader(title: 'Fuel Type', icon: Icons.local_gas_station_rounded),
+                        Row(
+                          children: [
+                            _SelectionChip(
+                              label: 'Petrol',
+                              selected: (_activeFuelType ?? FuelType.petrol) == FuelType.petrol,
+                              onTap: () => setState(() => _activeFuelType = FuelType.petrol),
+                            ),
+                            const SizedBox(width: 12),
+                            _SelectionChip(
+                              label: 'CNG',
+                              selected: _activeFuelType == FuelType.cng,
+                              onTap: () => setState(() => _activeFuelType = FuelType.cng),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                      ],
+                      _SectionHeader(title: 'Refill Details', icon: Icons.ev_station_rounded),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildTextField(
+                              controller: _quantityCtrl,
+                              label: 'Quantity',
+                              hint: '0.00',
+                              suffixText: unit,
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              validator: Validators.quantity,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: _buildTextField(
+                              controller: _priceCtrl,
+                              label: 'Total Cost',
+                              hint: '0.00',
+                              suffixText: '₹',
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              validator: Validators.price,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      _buildTextField(
+                        controller: _odometerCtrl,
+                        label: 'Odometer Reading',
+                        hint: 'Current km',
+                        keyboardType: TextInputType.number,
+                        validator: Validators.odometer,
+                      ),
+                      const SizedBox(height: 12),
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('Full Tank refill', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                        subtitle: const Text('Keeps mileage tracking accurate', style: TextStyle(fontSize: 12)),
+                        value: _isFullTank,
+                        onChanged: (v) => setState(() => _isFullTank = v),
+                        activeColor: cs.primary,
+                      ),
+                      const SizedBox(height: 24),
+                      _SectionHeader(title: 'Optional', icon: Icons.more_horiz_rounded),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(color: cs.primary.withAlpha(20), borderRadius: BorderRadius.circular(8)),
+                          child: Icon(Icons.calendar_today_rounded, color: cs.primary, size: 20),
+                        ),
+                        title: Text(
+                          'Refilled on: ${DateFormatter.format(_date)}',
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                        ),
+                        onTap: _pickDate,
+                      ),
+                      const SizedBox(height: 12),
+                      _buildTextField(
+                        controller: _stationCtrl,
+                        label: 'Fuel Station',
+                        hint: 'e.g. Shell, HP',
+                      ),
+                      const SizedBox(height: 20),
+                      _buildTextField(
+                        controller: _notesCtrl,
+                        label: 'Notes',
+                        maxLines: 3,
+                      ),
+                      const SizedBox(height: 48),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: ElevatedButton(
+                          onPressed: _loading ? null : _save,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: cs.primary,
+                            foregroundColor: cs.onPrimary,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            elevation: 0,
+                          ),
+                          child: _loading ? const CircularProgressIndicator(color: Colors.white) : const Text('Save Fuel Entry', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ]),
+            ),
+          ),
         ],
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-          children: [
-            // Vehicle selector
-            if (vehicles.length > 1) ...[
-              DropdownButtonFormField<String>(
-                value: _selectedVehicleId,
-                decoration: const InputDecoration(labelText: 'Vehicle'),
-                items: vehicles
-                    .map((v) => DropdownMenuItem(value: v.id, child: Text(v.nickname)))
-                    .toList(),
-                onChanged: (v) => setState(() {
-                  _selectedVehicleId = v;
-                  _activeFuelType = null; // reset fuel type selection
-                }),
-              ),
-              const SizedBox(height: AppSpacing.md),
-            ],
+    );
+  }
 
-            // Petrol+CNG fuel type selector
-            if (isPetrolCng) ...[
-              Text('Filling with:', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: cs.onSurfaceVariant)),
-              const SizedBox(height: AppSpacing.xs),
-              Row(
-                children: [
-                  _FuelChip(
-                    label: 'Petrol (L)',
-                    selected: (_activeFuelType ?? FuelType.petrol) == FuelType.petrol,
-                    onTap: () => setState(() => _activeFuelType = FuelType.petrol),
-                    cs: cs,
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  _FuelChip(
-                    label: 'CNG (kg)',
-                    selected: _activeFuelType == FuelType.cng,
-                    onTap: () => setState(() => _activeFuelType = FuelType.cng),
-                    cs: cs,
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.md),
-            ],
+  InputDecoration _inputDecoration(String label) {
+    final cs = Theme.of(context).colorScheme;
+    return InputDecoration(
+      labelText: label,
+      floatingLabelBehavior: FloatingLabelBehavior.always,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: cs.outline.withAlpha(50))),
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: cs.outline.withAlpha(50))),
+      filled: true,
+      fillColor: cs.surface,
+    );
+  }
 
-            _DateRow(date: _date, onTap: _pickDate),
-            const SizedBox(height: AppSpacing.md),
-
-            TextFormField(
-              controller: _quantityCtrl,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              validator: Validators.quantity,
-              decoration: InputDecoration(labelText: 'Quantity ($unit)', hintText: 'e.g. 40'),
-            ),
-            const SizedBox(height: AppSpacing.md),
-
-            TextFormField(
-              controller: _priceCtrl,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              validator: Validators.price,
-              decoration: const InputDecoration(labelText: 'Total Price (₹)', hintText: 'e.g. 3200'),
-            ),
-            const SizedBox(height: AppSpacing.md),
-
-            TextFormField(
-              controller: _odometerCtrl,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              validator: Validators.odometer,
-              decoration: const InputDecoration(labelText: 'Odometer (km)', hintText: 'e.g. 12500'),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const Text('Full Tank'),
-              subtitle: const Text('Required for mileage calculation'),
-              value: _isFullTank,
-              onChanged: (v) => setState(() => _isFullTank = v),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-
-            TextFormField(
-              controller: _stationCtrl,
-              decoration: const InputDecoration(labelText: 'Fuel Station (optional)'),
-            ),
-            const SizedBox(height: AppSpacing.md),
-
-            TextFormField(
-              controller: _notesCtrl,
-              maxLines: 2,
-              decoration: const InputDecoration(labelText: 'Notes (optional)'),
-            ),
-            const SizedBox(height: AppSpacing.xxl),
-          ],
-        ),
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    String? hint,
+    String? suffixText,
+    TextInputType? keyboardType,
+    String? Function(String?)? validator,
+    int maxLines = 1,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      maxLines: maxLines,
+      validator: validator,
+      decoration: _inputDecoration(label).copyWith(
+        hintText: hint,
+        suffixText: suffixText,
+        suffixStyle: const TextStyle(fontWeight: FontWeight.bold),
       ),
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Shared widgets
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _FuelChip extends StatelessWidget {
-  const _FuelChip({required this.label, required this.selected, required this.onTap, required this.cs});
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  final ColorScheme cs;
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.title, required this.icon});
+  final String title;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: selected ? cs.primary : cs.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: selected ? cs.primary : cs.outline),
-        ),
-        child: Text(label,
-            style: TextStyle(
-              color: selected ? cs.onPrimary : cs.onSurfaceVariant,
-              fontWeight: FontWeight.w600,
-              fontSize: 13,
-            )),
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: cs.primary),
+          const SizedBox(width: 8),
+          Text(
+            title,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w900, color: cs.primary),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _DateRow extends StatelessWidget {
-  const _DateRow({required this.date, required this.onTap});
-  final DateTime date;
+class _SelectionChip extends StatelessWidget {
+  const _SelectionChip({required this.label, required this.selected, required this.onTap});
+  final String label;
+  final bool selected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md, vertical: AppSpacing.sm + AppSpacing.xs),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          border: Border.all(color: cs.outline),
+          color: selected ? cs.primary : cs.surface,
           borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: selected ? cs.primary : cs.outline.withAlpha(30)),
         ),
-        child: Row(
-          children: [
-            Icon(Icons.calendar_today_rounded, size: 18, color: cs.primary),
-            const SizedBox(width: AppSpacing.sm),
-            Text('${date.day}/${date.month}/${date.year}',
-                style: Theme.of(context).textTheme.bodyMedium),
-            const Spacer(),
-            Icon(Icons.edit_calendar_rounded, size: 16, color: cs.onSurfaceVariant),
-          ],
+        child: Text(
+          label,
+          style: TextStyle(color: selected ? cs.onPrimary : cs.onSurfaceVariant, fontWeight: FontWeight.bold, fontSize: 13),
         ),
       ),
     );
