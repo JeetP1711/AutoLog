@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../providers/reminder_provider.dart';
 import '../../providers/vehicle_provider.dart';
-import '../../theme/app_colors.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/date_formatter.dart';
 import '../../widgets/confirm_dialog.dart';
@@ -15,129 +14,130 @@ class ReminderCenterScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
     final remindersAsync = ref.watch(reminderProvider);
     final vehicles = ref.watch(vehicleProvider).valueOrNull ?? [];
     final vehicleNames = {for (final v in vehicles) v.id: v.nickname};
 
     return Scaffold(
-            appBar: AppBar(title: const Text('Reminders')),
-      body: remindersAsync.when(
-        loading: () => ListView(
-          children: const [
-            SkeletonListTile(),
-            SkeletonListTile(),
-            SkeletonListTile(),
-          ],
-        ),
-        error: (e, _) => Center(child: Text('Error: $e')),
-        data: (reminders) {
-          if (reminders.isEmpty) {
-            return const EmptyState(
-              icon: Icons.notifications_none_rounded,
-              title: 'No pending reminders',
-              subtitle:
-                  'Reminders will appear here when you add documents or service logs with due dates',
-            );
-          }
-          return ListView.builder(
-            padding: const EdgeInsets.only(top: AppSpacing.sm, bottom: 80),
-            itemCount: reminders.length,
-            itemBuilder: (context, i) {
-              final reminder = reminders[i];
-              final vehicleName =
-                  vehicleNames[reminder.vehicleId] ?? 'Unknown Vehicle';
-              final daysLeft = reminder.dueDate != null
-                  ? DateFormatter.daysUntil(reminder.dueDate!)
-                  : null;
-              final urgencyColor = daysLeft == null
-                  ? AppColors.info
-                  : daysLeft <= 7
-                      ? AppColors.error
-                      : daysLeft <= 30
-                          ? AppColors.warning
-                          : AppColors.success;
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 120,
+            pinned: true,
+            elevation: 0,
+            backgroundColor: cs.surface,
+            flexibleSpace: FlexibleSpaceBar(
+              centerTitle: false,
+              titlePadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              title: Text(
+                'Reminders',
+                style: tt.headlineSmall?.copyWith(fontWeight: FontWeight.w900, letterSpacing: -1),
+              ),
+            ),
+          ),
+          remindersAsync.when(
+            loading: () => const SliverFillRemaining(child: Center(child: CircularProgressIndicator())),
+            error: (e, _) => SliverFillRemaining(child: Center(child: Text('Error: $e'))),
+            data: (reminders) {
+              if (reminders.isEmpty) {
+                return const SliverFillRemaining(
+                  child: EmptyState(
+                    icon: Icons.notifications_none_rounded,
+                    title: 'All caught up!',
+                    subtitle: 'Any upcoming service or document renewals will show up here.',
+                  ),
+                );
+              }
 
-              return Card(
-                margin: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.md,
-                  vertical: AppSpacing.xs,
-                ),
-                child: ListTile(
-                  leading: Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: urgencyColor.withAlpha(30),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      Icons.notifications_active_rounded,
-                      color: urgencyColor,
-                      size: 22,
-                    ),
-                  ),
-                  title: Text(
-                    reminder.title,
+              return SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final reminder = reminders[index];
+                      final vehicleName = vehicleNames[reminder.vehicleId] ?? 'My Vehicle';
+                      final daysLeft = reminder.dueDate != null ? DateFormatter.daysUntil(reminder.dueDate!) : null;
+
+                      Color statusColor = cs.primary;
+                      if (daysLeft != null) {
+                        if (daysLeft <= 7) statusColor = Colors.redAccent;
+                        else if (daysLeft <= 30) statusColor = Colors.orangeAccent;
+                        else statusColor = Colors.greenAccent;
+                      }
+
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        decoration: BoxDecoration(
+                          color: cs.surface,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: cs.outline.withAlpha(30)),
                         ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        vehicleName,
-                        style: AppTextStyles.bodySmall
-                            .copyWith(color: AppColors.textSecondaryDark),
-                      ),
-                      if (reminder.dueDate != null)
-                        Text(
-                          DateFormatter.formatExpiry(reminder.dueDate!),
-                          style: AppTextStyles.labelSmall
-                              .copyWith(color: urgencyColor),
-                        )
-                      else if (reminder.dueOdometerKm != null)
-                        Text(
-                          'At ${reminder.dueOdometerKm!.toStringAsFixed(0)} km',
-                          style: AppTextStyles.labelSmall
-                              .copyWith(color: urgencyColor),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: InkWell(
+                            onTap: () {},
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 48,
+                                    height: 48,
+                                    decoration: BoxDecoration(color: statusColor.withAlpha(20), borderRadius: BorderRadius.circular(12)),
+                                    child: Icon(Icons.notifications_active_rounded, color: statusColor, size: 24),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(reminder.title, style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w900, color: cs.onSurface)),
+                                        const SizedBox(height: 2),
+                                        Text(vehicleName, style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.bold)),
+                                        const SizedBox(height: 4),
+                                        if (reminder.dueDate != null)
+                                          Row(
+                                            children: [
+                                              Icon(Icons.calendar_month_rounded, size: 12, color: statusColor),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                'Due: ${DateFormatter.format(reminder.dueDate!)}',
+                                                style: tt.labelSmall?.copyWith(color: statusColor, fontWeight: FontWeight.w900),
+                                              ),
+                                            ],
+                                          )
+                                        else if (reminder.dueOdometerKm != null)
+                                          Text(
+                                            'Due at: ${reminder.dueOdometerKm!.toStringAsFixed(0)} km',
+                                            style: tt.labelSmall?.copyWith(color: statusColor, fontWeight: FontWeight.w900),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                  Column(
+                                    children: [
+                                      IconButton(
+                                        icon: Icon(Icons.check_circle_outline_rounded, color: Colors.green.shade400, size: 24),
+                                        onPressed: () => ref.read(reminderProvider.notifier).dismissReminder(reminder.id),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
-                    ],
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.check_circle_outline_rounded,
-                            color: AppColors.success),
-                        tooltip: 'Dismiss',
-                        onPressed: () async {
-                          await ref
-                              .read(reminderProvider.notifier)
-                              .dismissReminder(reminder.id);
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete_outline_rounded,
-                            color: AppColors.error),
-                        tooltip: 'Delete',
-                        onPressed: () async {
-                          final confirmed = await showConfirmDialog(
-                            context,
-                            title: 'Delete Reminder',
-                            message: 'Delete this reminder?',
-                          );
-                          if (confirmed == true) {
-                            await ref
-                                .read(reminderProvider.notifier)
-                                .deleteReminder(reminder.id);
-                          }
-                        },
-                      ),
-                    ],
+                      );
+                    },
+                    itemCount: reminders.length,
                   ),
                 ),
               );
             },
-          );
-        },
+          ),
+        ],
       ),
     );
   }
