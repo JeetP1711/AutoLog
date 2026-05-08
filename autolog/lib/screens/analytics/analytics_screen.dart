@@ -17,31 +17,50 @@ class AnalyticsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currency = ref.watch(currencySymbolProvider);
     final year = DateTime.now().year;
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
 
     return Scaffold(
-            appBar: AppBar(title: const Text('Analytics')),
-      body: ListView(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        children: [
-          _MonthlyFuelChart(year: year, currency: currency),
-          const SizedBox(height: AppSpacing.lg),
-          _MileageTrendChart(),
-          const SizedBox(height: AppSpacing.lg),
-          _ExpensePieChart(currency: currency),
-          const SizedBox(height: AppSpacing.lg),
-          _YearlyMaintenanceChart(currency: currency),
-          const SizedBox(height: AppSpacing.lg),
-          _VehicleComparisonChart(currency: currency),
-          const SizedBox(height: 80),
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 120,
+            floating: false,
+            pinned: true,
+            elevation: 0,
+            backgroundColor: cs.surface,
+            flexibleSpace: FlexibleSpaceBar(
+              centerTitle: false,
+              titlePadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              title: Text(
+                'Statistics',
+                style: tt.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -1,
+                  color: cs.onSurface,
+                ),
+              ),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                _MonthlyFuelChart(year: year, currency: currency),
+                const SizedBox(height: 20),
+                _MileageTrendChart(),
+                const SizedBox(height: 20),
+                _ExpensePieChart(currency: currency),
+                const SizedBox(height: 20),
+                _YearlyMaintenanceChart(currency: currency),
+              ]),
+            ),
+          ),
         ],
       ),
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Monthly Fuel Spend Bar Chart
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _MonthlyFuelChart extends ConsumerWidget {
   const _MonthlyFuelChart({required this.year, required this.currency});
@@ -51,20 +70,22 @@ class _MonthlyFuelChart extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dataAsync = ref.watch(monthlyFuelSpendProvider(year));
+    final cs = Theme.of(context).colorScheme;
 
     return _ChartCard(
-      title: 'Monthly Fuel Spend ($year)',
+      title: 'Fuel Spend Monthly ($year)',
       icon: Icons.local_gas_station_rounded,
+      color: AppColors.fuelPetrol,
       child: dataAsync.when(
-        loading: () => const SkeletonCard(height: 180),
+        loading: () => const SkeletonCard(height: 200),
         error: (_, __) => const _ChartError(),
         data: (points) {
           final nonZero = points.where((p) => p.totalSpend > 0).toList();
           if (nonZero.isEmpty) {
-            return const _EmptyChart(message: 'Add fuel logs to see monthly spend');
+            return const _EmptyChart(message: 'Add fuel logs to see monthly spend data');
           }
           return SizedBox(
-            height: 180,
+            height: 200,
             child: BarChart(
               BarChartData(
                 barGroups: points.asMap().entries.map((e) {
@@ -73,9 +94,9 @@ class _MonthlyFuelChart extends ConsumerWidget {
                     barRods: [
                       BarChartRodData(
                         toY: e.value.totalSpend,
-                        color: AppColors.primaryBlue,
-                        width: 14,
-                        borderRadius: BorderRadius.circular(4),
+                        color: cs.primary,
+                        width: 12,
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
                       ),
                     ],
                   );
@@ -84,32 +105,41 @@ class _MonthlyFuelChart extends ConsumerWidget {
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      getTitlesWidget: (v, _) => Text(
-                        points[v.toInt()].label,
-                        style: AppTextStyles.labelSmall
-                            .copyWith(color: AppColors.textSecondaryDark),
+                      getTitlesWidget: (v, _) => Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text(
+                          points[v.toInt()].label.substring(0, 1),
+                          style: TextStyle(
+                            color: cs.onSurfaceVariant.withAlpha(150),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
                   ),
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 50,
+                      reservedSize: 45,
                       getTitlesWidget: (v, _) => Text(
                         CurrencyFormatter.formatCompact(v, currency),
-                        style: AppTextStyles.labelSmall
-                            .copyWith(color: AppColors.textSecondaryDark),
+                        style: TextStyle(
+                          color: cs.onSurfaceVariant.withAlpha(150),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
-                  topTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false)),
-                  rightTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false)),
+                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                 ),
                 gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
                   getDrawingHorizontalLine: (_) => FlLine(
-                    color: AppColors.darkDivider,
+                    color: cs.outline.withAlpha(20),
                     strokeWidth: 1,
                   ),
                 ),
@@ -123,14 +153,7 @@ class _MonthlyFuelChart extends ConsumerWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Mileage Trend Line Chart
-// ─────────────────────────────────────────────────────────────────────────────
-
 class _MileageTrendChart extends ConsumerWidget {
-  // ignore: prefer_const_constructors_in_immutables
-  _MileageTrendChart();
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final vehicles = ref.watch(vehicleProvider).valueOrNull ?? [];
@@ -138,20 +161,21 @@ class _MileageTrendChart extends ConsumerWidget {
 
     final vehicleId = vehicles.first.id;
     final dataAsync = ref.watch(mileageTrendProvider(vehicleId));
+    final cs = Theme.of(context).colorScheme;
 
     return _ChartCard(
       title: 'Mileage Trend',
       icon: Icons.trending_up_rounded,
+      color: AppColors.success,
       child: dataAsync.when(
-        loading: () => const SkeletonCard(height: 180),
+        loading: () => const SkeletonCard(height: 200),
         error: (_, __) => const _ChartError(),
         data: (points) {
           if (points.isEmpty) {
-            return const _EmptyChart(
-                message: 'Add full-tank fuel logs to see mileage trends');
+            return const _EmptyChart(message: 'Add full-tank logs to analyze mileage trend');
           }
           return SizedBox(
-            height: 180,
+            height: 200,
             child: LineChart(
               LineChartData(
                 lineBarsData: [
@@ -161,41 +185,49 @@ class _MileageTrendChart extends ConsumerWidget {
                     }).toList(),
                     isCurved: true,
                     color: AppColors.success,
-                    barWidth: 2.5,
-                    dotData: const FlDotData(show: false),
+                    barWidth: 3,
+                    dotData: const FlDotData(show: true),
                     belowBarData: BarAreaData(
                       show: true,
-                      color: AppColors.success.withAlpha(30),
+                      gradient: LinearGradient(
+                        colors: [
+                          AppColors.success.withAlpha(40),
+                          AppColors.success.withAlpha(0),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
                     ),
                   ),
                 ],
                 titlesData: FlTitlesData(
-                  bottomTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false)),
+                  bottomTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
                       reservedSize: 40,
                       getTitlesWidget: (v, _) => Text(
                         v.toStringAsFixed(1),
-                        style: AppTextStyles.labelSmall
-                            .copyWith(color: AppColors.textSecondaryDark),
+                        style: TextStyle(
+                          color: cs.onSurfaceVariant.withAlpha(150),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
-                  topTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false)),
-                  rightTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false)),
+                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                 ),
                 gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
                   getDrawingHorizontalLine: (_) => FlLine(
-                    color: AppColors.darkDivider,
+                    color: cs.outline.withAlpha(20),
                     strokeWidth: 1,
                   ),
                 ),
                 borderData: FlBorderData(show: false),
-                // Adjust minX/maxX and minY/maxY if there's only one point
                 minX: points.length == 1 ? -0.5 : null,
                 maxX: points.length == 1 ? 0.5 : null,
                 minY: points.length == 1 ? (points.first.mileage - 1).clamp(0, double.infinity) : null,
@@ -209,10 +241,6 @@ class _MileageTrendChart extends ConsumerWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Expense Pie Chart
-// ─────────────────────────────────────────────────────────────────────────────
-
 class _ExpensePieChart extends ConsumerWidget {
   const _ExpensePieChart({required this.currency});
   final String currency;
@@ -220,83 +248,79 @@ class _ExpensePieChart extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dataAsync = ref.watch(expenseBreakdownProvider);
+    final cs = Theme.of(context).colorScheme;
 
     return _ChartCard(
-      title: 'Expense Breakdown',
+      title: 'Expense Distribution',
       icon: Icons.pie_chart_rounded,
+      color: AppColors.primaryBlue,
       child: dataAsync.when(
-        loading: () => const SkeletonCard(height: 200),
+        loading: () => const SkeletonCard(height: 220),
         error: (_, __) => const _ChartError(),
         data: (entries) {
-          if (entries.length < 2) {
-            return const _EmptyChart(
-                message: 'Add more logs to see expense breakdown');
+          if (entries.isEmpty) {
+            return const _EmptyChart(message: 'No expenses tracked yet');
           }
           final total = entries.fold(0.0, (s, e) => s + e.total);
-          return SizedBox(
-            height: 200,
-            child: Row(
-              children: [
-                Expanded(
-                  child: PieChart(
-                    PieChartData(
-                      sections: entries.asMap().entries.map((e) {
-                        final color = AppColors.chartPalette[
-                            e.key % AppColors.chartPalette.length];
-                        return PieChartSectionData(
-                          value: e.value.total,
-                          color: color,
-                          title:
-                              '${(e.value.total / total * 100).toStringAsFixed(0)}%',
-                          titleStyle: AppTextStyles.labelSmall
-                              .copyWith(color: Colors.white),
-                          radius: 70,
-                        );
-                      }).toList(),
-                      sectionsSpace: 2,
-                    ),
+          return Column(
+            children: [
+              SizedBox(
+                height: 180,
+                child: PieChart(
+                  PieChartData(
+                    sections: entries.asMap().entries.map((e) {
+                      final color = AppColors.chartPalette[e.key % AppColors.chartPalette.length];
+                      return PieChartSectionData(
+                        value: e.value.total,
+                        color: color,
+                        title: '${(e.value.total / total * 100).toStringAsFixed(0)}%',
+                        titleStyle: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 10,
+                        ),
+                        radius: 65,
+                      );
+                    }).toList(),
+                    sectionsSpace: 4,
+                    centerSpaceRadius: 40,
                   ),
                 ),
-                const SizedBox(width: AppSpacing.md),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: entries.asMap().entries.take(6).map((e) {
-                    final color = AppColors.chartPalette[
-                        e.key % AppColors.chartPalette.length];
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 2),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 10,
-                            height: 10,
-                            decoration: BoxDecoration(
-                                color: color, shape: BoxShape.circle),
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            e.value.category,
-                            style: AppTextStyles.labelSmall.copyWith(
-                                color: AppColors.textSecondaryDark),
-                          ),
-                        ],
+              ),
+              const SizedBox(height: 24),
+              Wrap(
+                spacing: 12,
+                runSpacing: 8,
+                children: entries.asMap().entries.map((e) {
+                  final color = AppColors.chartPalette[e.key % AppColors.chartPalette.length];
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
                       ),
-                    );
-                  }).toList(),
-                ),
-              ],
-            ),
+                      const SizedBox(width: 6),
+                      Text(
+                        e.value.category,
+                        style: TextStyle(
+                          color: cs.onSurfaceVariant,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  );
+                }).toList(),
+              ),
+            ],
           );
         },
       ),
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Yearly Maintenance Bar Chart
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _YearlyMaintenanceChart extends ConsumerWidget {
   const _YearlyMaintenanceChart({required this.currency});
@@ -305,22 +329,22 @@ class _YearlyMaintenanceChart extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dataAsync = ref.watch(yearlyMaintenanceCostProvider);
+    final cs = Theme.of(context).colorScheme;
 
     return _ChartCard(
-      title: 'Yearly Maintenance Cost',
-      icon: Icons.bar_chart_rounded,
+      title: 'Maintenance Trend',
+      icon: Icons.auto_graph_rounded,
+      color: AppColors.info,
       child: dataAsync.when(
-        loading: () => const SkeletonCard(height: 180),
+        loading: () => const SkeletonCard(height: 200),
         error: (_, __) => const _ChartError(),
         data: (points) {
           final nonZero = points.where((p) => p.totalCost > 0).toList();
           if (nonZero.isEmpty) {
-            return const _EmptyChart(
-                message:
-                    'Add service or expense logs to see yearly trends');
+            return const _EmptyChart(message: 'Add service history to see yearly cost trends');
           }
           return SizedBox(
-            height: 180,
+            height: 200,
             child: BarChart(
               BarChartData(
                 barGroups: points.asMap().entries.map((e) {
@@ -329,9 +353,9 @@ class _YearlyMaintenanceChart extends ConsumerWidget {
                     barRods: [
                       BarChartRodData(
                         toY: e.value.totalCost,
-                        color: AppColors.warning,
+                        color: AppColors.info,
                         width: 20,
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
                       ),
                     ],
                   );
@@ -340,32 +364,41 @@ class _YearlyMaintenanceChart extends ConsumerWidget {
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      getTitlesWidget: (v, _) => Text(
-                        points[v.toInt()].year.toString(),
-                        style: AppTextStyles.labelSmall
-                            .copyWith(color: AppColors.textSecondaryDark),
+                      getTitlesWidget: (v, _) => Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text(
+                          points[v.toInt()].year.toString(),
+                          style: TextStyle(
+                            color: cs.onSurfaceVariant.withAlpha(150),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
                   ),
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 50,
+                      reservedSize: 45,
                       getTitlesWidget: (v, _) => Text(
                         CurrencyFormatter.formatCompact(v, currency),
-                        style: AppTextStyles.labelSmall
-                            .copyWith(color: AppColors.textSecondaryDark),
+                        style: TextStyle(
+                          color: cs.onSurfaceVariant.withAlpha(150),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
-                  topTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false)),
-                  rightTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false)),
+                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                 ),
                 gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
                   getDrawingHorizontalLine: (_) => FlLine(
-                    color: AppColors.darkDivider,
+                    color: cs.outline.withAlpha(20),
                     strokeWidth: 1,
                   ),
                 ),
@@ -379,68 +412,56 @@ class _YearlyMaintenanceChart extends ConsumerWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Vehicle Comparison Chart
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _VehicleComparisonChart extends ConsumerWidget {
-  const _VehicleComparisonChart({required this.currency});
-  final String currency;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final vehicles = ref.watch(vehicleProvider).valueOrNull ?? [];
-    if (vehicles.length < 2) return const SizedBox.shrink();
-
-    return _ChartCard(
-      title: 'Vehicle Comparison',
-      icon: Icons.compare_arrows_rounded,
-      child: SizedBox(
-        height: 100,
-        child: Center(
-          child: Text(
-            'Open a vehicle to view its ownership cost',
-            style: AppTextStyles.bodySmall
-                .copyWith(color: AppColors.textSecondaryDark),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Shared chart widgets
-// ─────────────────────────────────────────────────────────────────────────────
-
 class _ChartCard extends StatelessWidget {
-  const _ChartCard(
-      {required this.title, required this.icon, required this.child});
+  const _ChartCard({
+    required this.title,
+    required this.icon,
+    required this.color,
+    required this.child,
+  });
   final String title;
   final IconData icon;
+  final Color color;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, size: 18, color: AppColors.primaryBlue),
-                const SizedBox(width: AppSpacing.xs),
-                Text(
-                  title,
-                    ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.md),
-            child,
-          ],
-        ),
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: cs.outline.withAlpha(20)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: color.withAlpha(20),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, size: 18, color: color),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                title,
+                style: tt.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.2,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          child,
+        ],
       ),
     );
   }
@@ -452,14 +473,21 @@ class _EmptyChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return SizedBox(
       height: 120,
       child: Center(
-        child: Text(
-          message,
-          textAlign: TextAlign.center,
-          style: AppTextStyles.bodySmall
-              .copyWith(color: AppColors.textSecondaryDark),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Text(
+            message,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: cs.onSurfaceVariant.withAlpha(150),
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ),
       ),
     );
@@ -474,8 +502,10 @@ class _ChartError extends StatelessWidget {
     return const SizedBox(
       height: 80,
       child: Center(
-        child: Text('Failed to load chart data',
-            style: TextStyle(color: AppColors.error)),
+        child: Text(
+          'Could not load chart data',
+          style: TextStyle(color: AppColors.error, fontWeight: FontWeight.w600),
+        ),
       ),
     );
   }
