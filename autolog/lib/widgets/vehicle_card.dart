@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/models.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_theme.dart';
+import '../utils/vehicle_image_helper.dart';
 
 /// A premium card displaying vehicle summary information.
 class VehicleCard extends StatelessWidget {
@@ -22,84 +23,94 @@ class VehicleCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
-    return Card(
+    return Container(
       margin: const EdgeInsets.symmetric(
         horizontal: AppSpacing.md,
         vertical: AppSpacing.sm,
       ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          child: Row(
-            children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: cs.primary.withAlpha(30),
-                  borderRadius: BorderRadius.circular(14),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(cs.brightness == Brightness.light ? 10 : 30),
+            blurRadius: 20,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Row(
+              children: [
+                // Vehicle Illustration
+                VehicleImageHelper.getVehicleImage(
+                  vehicle,
+                  width: 80,
+                  height: 60,
                 ),
-                child: Icon(
-                  _vehicleIcon(vehicle.vehicleType),
-                  size: 30,
-                  color: cs.primary,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(vehicle.nickname,
-                        style: tt.titleMedium,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis),
-                    const SizedBox(height: 2),
-                    Text(
-                      '${vehicle.brand} ${vehicle.model} · ${vehicle.year}',
-                      style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        _Chip(label: vehicle.numberPlate.toUpperCase(), cs: cs),
-                        const SizedBox(width: AppSpacing.xs),
-                        _Chip(
-                          label: _fuelLabel(vehicle.fuelType),
-                          cs: cs,
-                          color: _fuelColor(vehicle.fuelType),
+                const SizedBox(width: AppSpacing.md),
+                
+                // Info
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        vehicle.nickname,
+                        style: tt.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.5,
                         ),
-                      ],
-                    ),
-                  ],
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${vehicle.brand} ${vehicle.model}',
+                        style: tt.bodySmall?.copyWith(
+                          color: cs.onSurfaceVariant,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          _Tag(
+                            label: vehicle.numberPlate.toUpperCase(),
+                            icon: Icons.tag_rounded,
+                            color: cs.onSurfaceVariant.withAlpha(150),
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          _Tag(
+                            label: _fuelLabel(vehicle.fuelType),
+                            icon: Icons.local_gas_station_rounded,
+                            color: _fuelColor(vehicle.fuelType),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              if (onDelete != null)
-                IconButton(
-                  icon: Icon(Icons.delete_outline_rounded,
-                      color: cs.error, size: 20),
-                  onPressed: onDelete,
-                  tooltip: 'Delete vehicle',
+                
+                // Trailing
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: cs.onSurfaceVariant.withAlpha(100),
                 ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
-  }
-
-  IconData _vehicleIcon(VehicleType type) {
-    switch (type) {
-      case VehicleType.car: return Icons.directions_car_rounded;
-      case VehicleType.bike: return Icons.two_wheeler_rounded;
-      case VehicleType.scooter: return Icons.electric_scooter_rounded;
-      case VehicleType.truck: return Icons.local_shipping_rounded;
-      case VehicleType.custom: return Icons.commute_rounded;
-    }
   }
 
   String _fuelLabel(FuelType type) {
@@ -131,29 +142,28 @@ class VehicleCard extends StatelessWidget {
   }
 }
 
-class _Chip extends StatelessWidget {
-  const _Chip({required this.label, required this.cs, this.color});
+class _Tag extends StatelessWidget {
+  const _Tag({required this.label, required this.icon, required this.color});
   final String label;
-  final ColorScheme cs;
-  final Color? color;
+  final IconData icon;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
-    final bg = color != null ? color!.withAlpha(30) : cs.surfaceContainerHighest;
-    final fg = color ?? cs.onSurfaceVariant;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: fg,
-          fontWeight: FontWeight.w600,
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 12, color: color),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: color,
+            fontWeight: FontWeight.w700,
+            fontSize: 10,
+          ),
         ),
-      ),
+      ],
     );
   }
 }
