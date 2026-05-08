@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_colors.dart';
 import '../theme/app_theme.dart';
 
 /// Animated shimmer skeleton card placeholder.
@@ -25,7 +24,7 @@ class _SkeletonCardState extends State<SkeletonCard>
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     )..repeat(reverse: true);
-    _animation = Tween<double>(begin: 0.3, end: 0.7).animate(
+    _animation = Tween<double>(begin: 0.1, end: 0.3).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
   }
@@ -38,6 +37,7 @@ class _SkeletonCardState extends State<SkeletonCard>
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return AnimatedBuilder(
       animation: _animation,
       builder: (_, __) => Container(
@@ -48,8 +48,8 @@ class _SkeletonCardState extends State<SkeletonCard>
           vertical: AppSpacing.sm,
         ),
         decoration: BoxDecoration(
-          color: AppColors.darkSurface.withAlpha((_animation.value * 255).toInt()),
-          borderRadius: BorderRadius.circular(16),
+          color: cs.onSurface.withAlpha((_animation.value * 255).toInt()),
+          borderRadius: BorderRadius.circular(20),
         ),
       ),
     );
@@ -76,7 +76,7 @@ class _SkeletonListTileState extends State<SkeletonListTile>
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     )..repeat(reverse: true);
-    _animation = Tween<double>(begin: 0.3, end: 0.7).animate(
+    _animation = Tween<double>(begin: 0.1, end: 0.3).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
   }
@@ -87,11 +87,11 @@ class _SkeletonListTileState extends State<SkeletonListTile>
     super.dispose();
   }
 
-  Color get _color =>
-      AppColors.darkSurface.withAlpha((_animation.value * 255).toInt());
-
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final color = cs.onSurface.withAlpha((_animation.value * 255).toInt());
+
     return AnimatedBuilder(
       animation: _animation,
       builder: (_, __) => Padding(
@@ -101,25 +101,49 @@ class _SkeletonListTileState extends State<SkeletonListTile>
         ),
         child: Row(
           children: [
-            // Leading circle
+            // Leading square
             Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(shape: BoxShape.circle, color: _color),
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(16),
+              ),
             ),
             const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(height: 14, width: double.infinity, decoration: BoxDecoration(color: _color, borderRadius: BorderRadius.circular(7))),
+                  Container(
+                    height: 14,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: color,
+                      borderRadius: BorderRadius.circular(7),
+                    ),
+                  ),
                   const SizedBox(height: AppSpacing.xs),
-                  Container(height: 11, width: 140, decoration: BoxDecoration(color: _color, borderRadius: BorderRadius.circular(6))),
+                  Container(
+                    height: 11,
+                    width: 140,
+                    decoration: BoxDecoration(
+                      color: color,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
                 ],
               ),
             ),
             const SizedBox(width: AppSpacing.md),
-            Container(height: 14, width: 60, decoration: BoxDecoration(color: _color, borderRadius: BorderRadius.circular(7))),
+            Container(
+              height: 14,
+              width: 60,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(7),
+              ),
+            ),
           ],
         ),
       ),
