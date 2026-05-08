@@ -15,6 +15,7 @@ import '../../theme/app_theme.dart';
 import '../../utils/date_formatter.dart';
 import '../../utils/mileage_calculator.dart';
 import '../../utils/unit_converter.dart';
+import '../../utils/vehicle_image_helper.dart';
 import '../../widgets/confirm_dialog.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/log_tile.dart';
@@ -30,9 +31,7 @@ class VehicleDetailScreen extends ConsumerWidget {
     final vehiclesAsync = ref.watch(vehicleProvider);
 
     return vehiclesAsync.when(
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      ),
+      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, _) => Scaffold(body: Center(child: Text('Error: $e'))),
       data: (vehicles) {
         final vehicle = vehicles.firstWhere(
@@ -50,18 +49,16 @@ class _VehicleDetailView extends ConsumerStatefulWidget {
   final Vehicle vehicle;
 
   @override
-  ConsumerState<_VehicleDetailView> createState() =>
-      _VehicleDetailViewState();
+  ConsumerState<_VehicleDetailView> createState() => _VehicleDetailViewState();
 }
 
-class _VehicleDetailViewState extends ConsumerState<_VehicleDetailView>
-    with SingleTickerProviderStateMixin {
+class _VehicleDetailViewState extends ConsumerState<_VehicleDetailView> with SingleTickerProviderStateMixin {
   late final TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 6, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
   }
 
   @override
@@ -73,56 +70,180 @@ class _VehicleDetailViewState extends ConsumerState<_VehicleDetailView>
   @override
   Widget build(BuildContext context) {
     final v = widget.vehicle;
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
     final currency = ref.watch(currencySymbolProvider);
     final distanceUnit = ref.watch(distanceUnitProvider);
     final unitLabel = UnitConverter.label(distanceUnit);
 
     return Scaffold(
-            appBar: AppBar(
-        title: Text(v.nickname),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit_rounded),
-            onPressed: () => context.push('/vehicles/${v.id}/edit'),
-          ),
-        ],
-        bottom: TabBar(
+      body: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxIsScrolled) {
+          return [
+            SliverAppBar(
+              expandedHeight: 280,
+              pinned: true,
+              stretch: true,
+              elevation: 0,
+              backgroundColor: cs.surface,
+              leading: IconButton(
+                onPressed: () => context.pop(),
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(color: cs.surface.withAlpha(200), shape: BoxShape.circle),
+                  child: Icon(Icons.arrow_back_rounded, color: cs.onSurface, size: 20),
+                ),
+              ),
+              actions: [
+                IconButton(
+                  onPressed: () => context.push('/vehicles/${v.id}/edit'),
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(color: cs.surface.withAlpha(200), shape: BoxShape.circle),
+                    child: Icon(Icons.edit_rounded, color: cs.onSurface, size: 20),
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ],
+              flexibleSpace: FlexibleSpaceBar(
+                stretchModes: const [StretchMode.zoomBackground],
+                background: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [cs.primary.withAlpha(20), cs.surface],
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 40,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: Hero(
+                          tag: 'vehicle_image_${v.id}',
+                          child: VehicleImageHelper.getIllustration(
+                            v.vehicleType,
+                            brand: v.brand,
+                            width: 240,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                titlePadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                centerTitle: false,
+                title: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 200),
+                  opacity: innerBoxIsScrolled ? 1.0 : 0.0,
+                  child: Text(
+                    v.nickname,
+                    style: tt.titleLarge?.copyWith(fontWeight: FontWeight.w900, letterSpacing: -0.5),
+                  ),
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      v.nickname,
+                      style: tt.headlineMedium?.copyWith(fontWeight: FontWeight.w900, letterSpacing: -1),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${v.brand} ${v.model} • ${v.year}',
+                      style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: cs.primary.withAlpha(20),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: cs.primary.withAlpha(40)),
+                      ),
+                      child: Text(
+                        v.numberPlate.toUpperCase(),
+                        style: TextStyle(color: cs.primary, fontWeight: FontWeight.w900, letterSpacing: 1, fontSize: 12),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _SliverAppBarDelegate(
+                TabBar(
+                  controller: _tabController,
+                  isScrollable: true,
+                  indicatorSize: TabBarIndicatorSize.label,
+                  labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
+                  unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                  tabs: const [
+                    Tab(text: 'Overview'),
+                    Tab(text: 'Fuel'),
+                    Tab(text: 'Service'),
+                    Tab(text: 'Expenses'),
+                    Tab(text: 'Docs'),
+                  ],
+                ),
+                cs.surface,
+              ),
+            ),
+          ];
+        },
+        body: TabBarView(
           controller: _tabController,
-          isScrollable: true,
-          tabs: const [
-            Tab(text: 'Overview'),
-            Tab(text: 'Fuel'),
-            Tab(text: 'Service'),
-            Tab(text: 'Expenses'),
-            Tab(text: 'Documents'),
-            Tab(text: 'Notes'),
+          children: [
+            _OverviewTab(vehicle: v, currency: currency, unitLabel: unitLabel),
+            _FuelLogsTab(vehicle: v, currency: currency),
+            _ServiceLogsTab(vehicle: v, currency: currency),
+            _ExpensesTab(vehicle: v, currency: currency),
+            _DocumentsTab(vehicle: v),
           ],
         ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _OverviewTab(vehicle: v, currency: currency, unitLabel: unitLabel),
-          _FuelLogsTab(vehicle: v, currency: currency),
-          _ServiceLogsTab(vehicle: v, currency: currency),
-          _ExpensesTab(vehicle: v, currency: currency),
-          _DocumentsTab(vehicle: v),
-          _NotesTab(vehicle: v),
-        ],
       ),
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Overview Tab
-// ─────────────────────────────────────────────────────────────────────────────
+class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
+  _SliverAppBarDelegate(this._tabBar, this.backgroundColor);
+
+  final TabBar _tabBar;
+  final Color backgroundColor;
+
+  @override
+  double get minExtent => _tabBar.preferredSize.height;
+  @override
+  double get maxExtent => _tabBar.preferredSize.height;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return Container(
+      color: backgroundColor,
+      child: _tabBar,
+    );
+  }
+
+  @override
+  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
+    return false;
+  }
+}
 
 class _OverviewTab extends ConsumerWidget {
-  const _OverviewTab(
-      {required this.vehicle,
-      required this.currency,
-      required this.unitLabel});
+  const _OverviewTab({required this.vehicle, required this.currency, required this.unitLabel});
   final Vehicle vehicle;
   final String currency;
   final String unitLabel;
@@ -131,84 +252,37 @@ class _OverviewTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final fuelLogsAsync = ref.watch(fuelLogProvider(vehicle.id));
     final serviceLogsAsync = ref.watch(serviceLogProvider(vehicle.id));
+    final cs = Theme.of(context).colorScheme;
 
     return ListView(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.all(24),
       children: [
-        // Vehicle header card
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Row(
-              children: [
-                Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryBlue.withAlpha(30),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Icon(
-                    _vehicleIcon(vehicle.vehicleType),
-                    size: 34,
-                    color: AppColors.primaryBlue,
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(vehicle.nickname,
-                          style: AppTextStyles.titleMedium
-                              .copyWith(color: AppColors.textPrimaryDark)),
-                      Text(
-                          '${vehicle.brand} ${vehicle.model} · ${vehicle.year}',
-                          style: AppTextStyles.bodySmall
-                              .copyWith(color: AppColors.textSecondaryDark)),
-                      Text(vehicle.numberPlate.toUpperCase(),
-                          style: AppTextStyles.labelMedium
-                              .copyWith(color: AppColors.primaryBlue)),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: AppSpacing.md),
-
-        // Stats
         Row(
           children: [
             Expanded(
               child: StatCard(
                 label: 'Odometer',
-                value:
-                    '${vehicle.odometerKm.toStringAsFixed(0)} $unitLabel',
+                value: '${vehicle.odometerKm.toStringAsFixed(0)}',
+                subtitle: unitLabel,
                 icon: Icons.speed_rounded,
                 iconColor: AppColors.info,
               ),
             ),
-            const SizedBox(width: AppSpacing.sm),
+            const SizedBox(width: 16),
             Expanded(
               child: fuelLogsAsync.when(
-                loading: () => const SkeletonCard(height: 90),
+                loading: () => const SkeletonCard(height: 100),
                 error: (_, __) => const SizedBox.shrink(),
                 data: (logs) {
                   final withMileage = logs.where((l) => l.mileage != null).toList();
                   final avgMileage = withMileage.isEmpty
                       ? null
-                      : withMileage.map((l) => l.mileage!).fold(0.0, (a, b) => a + b) /
-                          withMileage.length;
-                  final unit = MileageCalculator.efficiencyUnit(
-                      vehicle.fuelType,
-                      customUnit: vehicle.customFuelUnit);
+                      : withMileage.map((l) => l.mileage!).fold(0.0, (a, b) => a + b) / withMileage.length;
+                  final unit = MileageCalculator.efficiencyUnit(vehicle.fuelType, customUnit: vehicle.customFuelUnit);
                   return StatCard(
-                    label: 'Avg Mileage',
-                    value: avgMileage != null
-                        ? '${avgMileage.toStringAsFixed(1)} $unit'
-                        : 'N/A',
+                    label: 'Efficiency',
+                    value: avgMileage != null ? avgMileage.toStringAsFixed(1) : 'N/A',
+                    subtitle: unit,
                     icon: Icons.local_gas_station_rounded,
                     iconColor: AppColors.fuelPetrol,
                   );
@@ -217,11 +291,9 @@ class _OverviewTab extends ConsumerWidget {
             ),
           ],
         ),
-        const SizedBox(height: AppSpacing.sm),
-
-        // Last service
+        const SizedBox(height: 16),
         serviceLogsAsync.when(
-          loading: () => const SkeletonCard(height: 80),
+          loading: () => const SkeletonCard(height: 100),
           error: (_, __) => const SizedBox.shrink(),
           data: (logs) {
             if (logs.isEmpty) return const SizedBox.shrink();
@@ -235,29 +307,27 @@ class _OverviewTab extends ConsumerWidget {
             );
           },
         ),
+        if (vehicle.notes != null && vehicle.notes!.isNotEmpty) ...[
+          const SizedBox(height: 24),
+          Text('Notes', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w900)),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: cs.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: cs.outline.withAlpha(20)),
+            ),
+            child: Text(
+              vehicle.notes!,
+              style: TextStyle(color: cs.onSurfaceVariant, height: 1.5, fontSize: 13),
+            ),
+          ),
+        ],
       ],
     );
   }
-
-  IconData _vehicleIcon(VehicleType type) {
-    switch (type) {
-      case VehicleType.car:
-        return Icons.directions_car_rounded;
-      case VehicleType.bike:
-        return Icons.two_wheeler_rounded;
-      case VehicleType.scooter:
-        return Icons.electric_scooter_rounded;
-      case VehicleType.truck:
-        return Icons.local_shipping_rounded;
-      case VehicleType.custom:
-        return Icons.commute_rounded;
-    }
-  }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Fuel Logs Tab
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _FuelLogsTab extends ConsumerWidget {
   const _FuelLogsTab({required this.vehicle, required this.currency});
@@ -270,10 +340,10 @@ class _FuelLogsTab extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push(
-            '${AppRoutes.fuelLogAdd}?vehicleId=${vehicle.id}'),
-        child: const Icon(Icons.add_rounded),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => context.push('${AppRoutes.fuelLogAdd}?vehicleId=${vehicle.id}'),
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('Add Entry'),
       ),
       body: logsAsync.when(
         loading: () => const _SkeletonList(),
@@ -282,12 +352,12 @@ class _FuelLogsTab extends ConsumerWidget {
           if (logs.isEmpty) {
             return const EmptyState(
               icon: Icons.local_gas_station_rounded,
-              title: 'No fuel logs yet',
-              subtitle: 'Tap + to add your first fuel entry',
+              title: 'No fuel history',
+              subtitle: 'Track your fuel consumption to see mileage analytics.',
             );
           }
           return ListView.builder(
-            padding: const EdgeInsets.only(top: AppSpacing.sm, bottom: 100),
+            padding: const EdgeInsets.only(top: 16, bottom: 100),
             itemCount: logs.length,
             itemBuilder: (context, i) {
               final log = logs[i];
@@ -297,20 +367,14 @@ class _FuelLogsTab extends ConsumerWidget {
                 title: log.mileage != null
                     ? '${log.mileage!.toStringAsFixed(1)} ${MileageCalculator.efficiencyUnit(vehicle.fuelType)}'
                     : '${log.quantity.toStringAsFixed(1)} ${MileageCalculator.quantityUnit(vehicle.fuelType)}',
-                subtitle: log.stationName ?? 'Fuel refill',
+                subtitle: log.stationName ?? 'Fuel refilled',
                 date: DateFormatter.formatShort(log.date),
                 amount: log.totalPrice.toStringAsFixed(0),
                 currencySymbol: currency,
                 onDelete: () async {
-                  final confirmed = await showConfirmDialog(
-                    context,
-                    title: 'Delete Fuel Log',
-                    message: 'Delete this fuel entry?',
-                  );
+                  final confirmed = await showConfirmDialog(context, title: 'Delete Entry', message: 'Remove this fuel entry from history?');
                   if (confirmed == true) {
-                    await ref
-                        .read(fuelLogProvider(vehicle.id).notifier)
-                        .deleteFuelLog(log.id, vehicle.fuelType);
+                    await ref.read(fuelLogProvider(vehicle.id).notifier).deleteFuelLog(log.id, vehicle.fuelType);
                   }
                 },
               );
@@ -321,10 +385,6 @@ class _FuelLogsTab extends ConsumerWidget {
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Service Logs Tab
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _ServiceLogsTab extends ConsumerWidget {
   const _ServiceLogsTab({required this.vehicle, required this.currency});
@@ -337,9 +397,10 @@ class _ServiceLogsTab extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push(AppRoutes.serviceLogAdd),
-        child: const Icon(Icons.add_rounded),
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('Log Service'),
       ),
       body: logsAsync.when(
         loading: () => const _SkeletonList(),
@@ -348,12 +409,12 @@ class _ServiceLogsTab extends ConsumerWidget {
           if (logs.isEmpty) {
             return const EmptyState(
               icon: Icons.build_rounded,
-              title: 'No service logs yet',
-              subtitle: 'Tap + to add a service entry',
+              title: 'No service records',
+              subtitle: 'Keep track of maintenance to ensure vehicle longevity.',
             );
           }
           return ListView.builder(
-            padding: const EdgeInsets.only(top: AppSpacing.sm, bottom: 100),
+            padding: const EdgeInsets.only(top: 16, bottom: 100),
             itemCount: logs.length,
             itemBuilder: (context, i) {
               final log = logs[i];
@@ -361,20 +422,14 @@ class _ServiceLogsTab extends ConsumerWidget {
                 icon: Icons.build_rounded,
                 iconColor: AppColors.info,
                 title: log.serviceType,
-                subtitle: log.garageName ?? 'Service',
+                subtitle: log.garageName ?? 'Service Center',
                 date: DateFormatter.formatShort(log.date),
                 amount: log.cost.toStringAsFixed(0),
                 currencySymbol: currency,
                 onDelete: () async {
-                  final confirmed = await showConfirmDialog(
-                    context,
-                    title: 'Delete Service Log',
-                    message: 'Delete this service entry?',
-                  );
+                  final confirmed = await showConfirmDialog(context, title: 'Delete Record', message: 'Remove this service record?');
                   if (confirmed == true) {
-                    await ref
-                        .read(serviceLogProvider(vehicle.id).notifier)
-                        .deleteServiceLog(log.id);
+                    await ref.read(serviceLogProvider(vehicle.id).notifier).deleteServiceLog(log.id);
                   }
                 },
               );
@@ -385,10 +440,6 @@ class _ServiceLogsTab extends ConsumerWidget {
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Expenses Tab
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _ExpensesTab extends ConsumerWidget {
   const _ExpensesTab({required this.vehicle, required this.currency});
@@ -401,9 +452,10 @@ class _ExpensesTab extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push(AppRoutes.expenseLogAdd),
-        child: const Icon(Icons.add_rounded),
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('Add Expense'),
       ),
       body: logsAsync.when(
         loading: () => const _SkeletonList(),
@@ -412,12 +464,12 @@ class _ExpensesTab extends ConsumerWidget {
           if (logs.isEmpty) {
             return const EmptyState(
               icon: Icons.receipt_long_rounded,
-              title: 'No expenses yet',
-              subtitle: 'Tap + to add an expense',
+              title: 'No expenses',
+              subtitle: 'Track insurance, taxes, and other miscellaneous costs.',
             );
           }
           return ListView.builder(
-            padding: const EdgeInsets.only(top: AppSpacing.sm, bottom: 100),
+            padding: const EdgeInsets.only(top: 16, bottom: 100),
             itemCount: logs.length,
             itemBuilder: (context, i) {
               final log = logs[i];
@@ -425,20 +477,14 @@ class _ExpensesTab extends ConsumerWidget {
                 icon: Icons.receipt_long_rounded,
                 iconColor: AppColors.success,
                 title: log.category,
-                subtitle: log.notes ?? 'Expense',
+                subtitle: log.notes ?? 'General expense',
                 date: DateFormatter.formatShort(log.date),
                 amount: log.amount.toStringAsFixed(0),
                 currencySymbol: currency,
                 onDelete: () async {
-                  final confirmed = await showConfirmDialog(
-                    context,
-                    title: 'Delete Expense',
-                    message: 'Delete this expense entry?',
-                  );
+                  final confirmed = await showConfirmDialog(context, title: 'Delete Expense', message: 'Remove this expense entry?');
                   if (confirmed == true) {
-                    await ref
-                        .read(expenseLogProvider(vehicle.id).notifier)
-                        .deleteExpenseLog(log.id);
+                    await ref.read(expenseLogProvider(vehicle.id).notifier).deleteExpenseLog(log.id);
                   }
                 },
               );
@@ -449,10 +495,6 @@ class _ExpensesTab extends ConsumerWidget {
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Documents Tab
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _DocumentsTab extends ConsumerWidget {
   const _DocumentsTab({required this.vehicle});
@@ -464,9 +506,10 @@ class _DocumentsTab extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push(AppRoutes.documentAdd),
-        child: const Icon(Icons.add_rounded),
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('Add Doc'),
       ),
       body: docsAsync.when(
         loading: () => const _SkeletonList(),
@@ -475,21 +518,17 @@ class _DocumentsTab extends ConsumerWidget {
           if (docs.isEmpty) {
             return const EmptyState(
               icon: Icons.description_rounded,
-              title: 'No documents yet',
-              subtitle: 'Tap + to add insurance, PUC, or other documents',
+              title: 'No documents',
+              subtitle: 'Store insurance, registration and PUC documents securely.',
             );
           }
           return ListView.builder(
-            padding: const EdgeInsets.only(top: AppSpacing.sm, bottom: 100),
+            padding: const EdgeInsets.only(top: 16, bottom: 100),
             itemCount: docs.length,
             itemBuilder: (context, i) {
               final doc = docs[i];
               final daysLeft = DateFormatter.daysUntil(doc.expiryDate);
-              final color = daysLeft <= 7
-                  ? AppColors.error
-                  : daysLeft <= 30
-                      ? AppColors.warning
-                      : AppColors.success;
+              final color = daysLeft <= 7 ? AppColors.error : daysLeft <= 30 ? AppColors.warning : AppColors.success;
               return LogTile(
                 icon: Icons.description_rounded,
                 iconColor: color,
@@ -497,15 +536,9 @@ class _DocumentsTab extends ConsumerWidget {
                 subtitle: DateFormatter.formatExpiry(doc.expiryDate),
                 date: DateFormatter.format(doc.expiryDate),
                 onDelete: () async {
-                  final confirmed = await showConfirmDialog(
-                    context,
-                    title: 'Delete Document',
-                    message: 'Delete this document?',
-                  );
+                  final confirmed = await showConfirmDialog(context, title: 'Delete Document', message: 'Permanently remove this document?');
                   if (confirmed == true) {
-                    await ref
-                        .read(documentProvider(vehicle.id).notifier)
-                        .deleteDocument(doc.id);
+                    await ref.read(documentProvider(vehicle.id).notifier).deleteDocument(doc.id);
                   }
                 },
               );
@@ -516,39 +549,6 @@ class _DocumentsTab extends ConsumerWidget {
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Notes Tab
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _NotesTab extends StatelessWidget {
-  const _NotesTab({required this.vehicle});
-  final Vehicle vehicle;
-
-  @override
-  Widget build(BuildContext context) {
-    final notes = vehicle.notes;
-    if (notes == null || notes.isEmpty) {
-      return const EmptyState(
-        icon: Icons.notes_rounded,
-        title: 'No notes',
-        subtitle: 'Edit the vehicle to add notes',
-      );
-    }
-    return Padding(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      child: Text(
-        notes,
-        style: AppTextStyles.bodyLarge
-            .copyWith(color: AppColors.textPrimaryDark, height: 1.6),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Helpers
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _SkeletonList extends StatelessWidget {
   const _SkeletonList();
