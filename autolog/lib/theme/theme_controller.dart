@@ -20,23 +20,23 @@ final sharedPreferencesProvider = Provider<SharedPreferences>(
 /// Manages the app-wide [ThemeMode] and persists the user's preference to
 /// [SharedPreferences] under the key `"theme_mode"`.
 ///
-/// Default theme is [ThemeMode.dark].
+  /// Default theme is [ThemeMode.light].
 class ThemeController extends StateNotifier<ThemeMode> {
   ThemeController(this._prefs) : super(_readThemeMode(_prefs));
 
   final SharedPreferences _prefs;
 
-  /// Reads the persisted [ThemeMode] from [prefs], defaulting to [ThemeMode.dark].
+  /// Reads the persisted [ThemeMode] from [prefs], defaulting to [ThemeMode.light].
   static ThemeMode _readThemeMode(SharedPreferences prefs) {
     final raw = prefs.getString(_kThemeModeKey);
     switch (raw) {
-      case _kLight:
-        return ThemeMode.light;
+      case _kDark:
+        return ThemeMode.dark;
       case _kSystem:
         return ThemeMode.system;
-      case _kDark:
+      case _kLight:
       default:
-        return ThemeMode.dark;
+        return ThemeMode.light;
     }
   }
 
