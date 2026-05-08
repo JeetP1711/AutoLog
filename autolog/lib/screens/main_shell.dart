@@ -1,20 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../theme/app_theme.dart';
 
 /// Shell widget that wraps the five bottom-navigation destinations.
-///
-/// Uses [StatefulShellRoute.indexedStack] so each tab preserves its own
-/// navigation stack and scroll position when the user switches tabs.
 class MainShell extends StatelessWidget {
-  /// The stateful navigation shell provided by [StatefulShellRoute].
   final StatefulNavigationShell navigationShell;
 
   const MainShell({
     super.key,
     required this.navigationShell,
   });
-
-  // ── Tab destinations ────────────────────────────────────────────────────────
 
   static const List<_NavDestination> _destinations = [
     _NavDestination(
@@ -23,7 +18,7 @@ class MainShell extends StatelessWidget {
       selectedIcon: Icons.home_rounded,
     ),
     _NavDestination(
-      label: 'Vehicles',
+      label: 'Garage',
       icon: Icons.directions_car_outlined,
       selectedIcon: Icons.directions_car_rounded,
     ),
@@ -33,53 +28,116 @@ class MainShell extends StatelessWidget {
       selectedIcon: Icons.history_rounded,
     ),
     _NavDestination(
-      label: 'Analytics',
+      label: 'Stats',
       icon: Icons.bar_chart_outlined,
       selectedIcon: Icons.bar_chart_rounded,
     ),
     _NavDestination(
-      label: 'Settings',
-      icon: Icons.settings_outlined,
-      selectedIcon: Icons.settings_rounded,
+      label: 'Menu',
+      icon: Icons.menu_rounded,
+      selectedIcon: Icons.menu_open_rounded,
     ),
   ];
-
-  // ── Helpers ─────────────────────────────────────────────────────────────────
 
   void _onDestinationSelected(int index) {
     navigationShell.goBranch(
       index,
-      // Re-tap on the active tab navigates back to the branch's initial route.
       initialLocation: index == navigationShell.currentIndex,
     );
   }
 
-  // ── Build ───────────────────────────────────────────────────────────────────
-
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Scaffold(
+      extendBody: true,
       body: navigationShell,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: navigationShell.currentIndex,
-        onDestinationSelected: _onDestinationSelected,
-        destinations: _destinations
-            .map(
-              (d) => NavigationDestination(
-                icon: Icon(d.icon),
-                selectedIcon: Icon(d.selectedIcon),
-                label: d.label,
-              ),
-            )
-            .toList(),
+      bottomNavigationBar: Container(
+        margin: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        decoration: BoxDecoration(
+          color: cs.surface.withAlpha(240),
+          borderRadius: BorderRadius.circular(32),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(cs.brightness == Brightness.light ? 15 : 40),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
+            ),
+          ],
+          border: Border.all(
+            color: cs.outline.withAlpha(cs.brightness == Brightness.light ? 20 : 40),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: List.generate(_destinations.length, (index) {
+            final isSelected = navigationShell.currentIndex == index;
+            final destination = _destinations[index];
+
+            return _NavItem(
+              destination: destination,
+              isSelected: isSelected,
+              onTap: () => _onDestinationSelected(index),
+            );
+          }),
+        ),
       ),
     );
   }
 }
 
-// ── Private helper ─────────────────────────────────────────────────────────────
+class _NavItem extends StatelessWidget {
+  const _NavItem({
+    required this.destination,
+    required this.isSelected,
+    required this.onTap,
+  });
 
-/// Immutable data class for a single bottom-nav destination.
+  final _NavDestination destination;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(24),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? cs.primary.withAlpha(20) : Colors.transparent,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isSelected ? destination.selectedIcon : destination.icon,
+              color: isSelected ? cs.primary : cs.onSurfaceVariant.withAlpha(150),
+              size: 24,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              destination.label,
+              style: TextStyle(
+                color: isSelected ? cs.primary : cs.onSurfaceVariant.withAlpha(150),
+                fontSize: 10,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _NavDestination {
   final String label;
   final IconData icon;
