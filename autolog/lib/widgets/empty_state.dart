@@ -27,35 +27,58 @@ class EmptyState extends StatelessWidget {
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xl),
+        padding: const EdgeInsets.all(AppSpacing.xxl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 80,
-              height: 80,
+              width: 100,
+              height: 100,
               decoration: BoxDecoration(
-                color: cs.primary.withAlpha(20),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: cs.primary.withAlpha(50), width: 1.5),
+                color: cs.primary.withAlpha(15),
+                shape: BoxShape.circle,
               ),
-              child: Icon(icon, size: 40, color: cs.primary.withAlpha(180)),
+              child: Center(
+                child: Icon(
+                  icon,
+                  size: 48,
+                  color: cs.primary.withAlpha(200),
+                ),
+              ),
             ),
-            const SizedBox(height: AppSpacing.lg),
-            Text(title,
-                textAlign: TextAlign.center,
-                style: tt.titleMedium),
+            const SizedBox(height: AppSpacing.xl),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: tt.titleLarge?.copyWith(
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.5,
+              ),
+            ),
             if (subtitle != null) ...[
               const SizedBox(height: AppSpacing.sm),
-              Text(subtitle!,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                child: Text(
+                  subtitle!,
                   textAlign: TextAlign.center,
                   style: tt.bodyMedium?.copyWith(
-                      color: cs.onSurfaceVariant, height: 1.5)),
+                    color: cs.onSurfaceVariant,
+                    height: 1.5,
+                  ),
+                ),
+              ),
             ],
             if (actionLabel != null && onAction != null) ...[
               const SizedBox(height: AppSpacing.xl),
-              FilledButton(
+              ElevatedButton(
                 onPressed: onAction,
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xl,
+                    vertical: AppSpacing.md,
+                  ),
+                ),
                 child: Text(actionLabel!),
               ),
             ],

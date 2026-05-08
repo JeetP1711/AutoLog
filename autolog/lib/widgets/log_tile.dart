@@ -32,61 +32,85 @@ class LogTile extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
-    final tile = Card(
+    final tile = Container(
       margin: const EdgeInsets.symmetric(
         horizontal: AppSpacing.md,
         vertical: AppSpacing.xs,
       ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          child: Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: iconColor.withAlpha(30),
-                  borderRadius: BorderRadius.circular(12),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: cs.outline.withAlpha(15)),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: iconColor.withAlpha(20),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Icon(icon, size: 24, color: iconColor),
                 ),
-                child: Icon(icon, size: 22, color: iconColor),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: tt.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.2,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        style: tt.bodySmall?.copyWith(
+                          color: cs.onSurfaceVariant,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(title,
-                        style: tt.titleSmall,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis),
-                    const SizedBox(height: 2),
-                    Text(subtitle,
-                        style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis),
-                  ],
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  if (amount != null)
+                    if (amount != null)
+                      Text(
+                        '${currencySymbol ?? '₹'}$amount',
+                        style: tt.titleSmall?.copyWith(
+                          color: cs.primary,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
                     Text(
-                      '${currencySymbol ?? '₹'}$amount',
-                      style: tt.titleSmall?.copyWith(
-                        color: cs.primary,
-                        fontWeight: FontWeight.w700,
+                      date,
+                      style: tt.labelSmall?.copyWith(
+                        color: cs.onSurfaceVariant,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                  Text(date,
-                      style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -105,10 +129,10 @@ class LogTile extends StatelessWidget {
           vertical: AppSpacing.xs,
         ),
         decoration: BoxDecoration(
-          color: cs.error.withAlpha(200),
-          borderRadius: BorderRadius.circular(16),
+          color: cs.error,
+          borderRadius: BorderRadius.circular(20),
         ),
-        child: const Icon(Icons.delete_rounded, color: Colors.white, size: 28),
+        child: const Icon(Icons.delete_outline_rounded, color: Colors.white, size: 24),
       ),
       confirmDismiss: (_) async => true,
       onDismissed: (_) => onDelete!(),
