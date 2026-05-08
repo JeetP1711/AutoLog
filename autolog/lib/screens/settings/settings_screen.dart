@@ -214,7 +214,7 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   void _showCurrencyPicker(BuildContext context, WidgetRef ref, String current) {
-    const currencies = ['₹', '$', '€', '£', '¥'];
+    const currencies = ['₹', '\$', '€', '£', '¥'];
     final cs = Theme.of(context).colorScheme;
 
     showModalBottomSheet(
