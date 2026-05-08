@@ -24,13 +24,6 @@ class HomeScreen extends ConsumerWidget {
     final currency = ref.watch(currencySymbolProvider);
 
     return Scaffold(
-            appBar: AppBar(
-        title: const Text('AutoLog'),
-        actions: [
-          _AlertsBadge(ref: ref),
-          const SizedBox(width: AppSpacing.sm),
-        ],
-      ),
       body: vehiclesAsync.when(
         loading: () => _buildSkeleton(),
         error: (e, _) => Center(child: Text('Error: $e')),
@@ -38,8 +31,8 @@ class HomeScreen extends ConsumerWidget {
           if (vehicles.isEmpty) {
             return EmptyState(
               icon: Icons.directions_car_rounded,
-              title: 'No vehicles yet',
-              subtitle: 'Add your first vehicle to start tracking',
+              title: 'Welcome to AutoLog',
+              subtitle: 'Add your first vehicle to start tracking expenses, services, and fuel mileage.',
               actionLabel: 'Add Vehicle',
               onAction: () => context.push(AppRoutes.vehiclesAdd),
             );
@@ -53,21 +46,26 @@ class HomeScreen extends ConsumerWidget {
   Widget _buildSkeleton() {
     return ListView(
       children: const [
-        SizedBox(height: AppSpacing.md),
-        SkeletonCard(height: 100),
-        SkeletonCard(height: 80),
-        SkeletonCard(height: 80),
-        SkeletonListTile(),
+        SizedBox(height: 100),
+        SkeletonCard(height: 120),
+        SizedBox(height: 20),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: [
+              Expanded(child: SkeletonCard(height: 100)),
+              SizedBox(width: 10),
+              Expanded(child: SkeletonCard(height: 100)),
+            ],
+          ),
+        ),
+        SizedBox(height: 20),
         SkeletonListTile(),
         SkeletonListTile(),
       ],
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// _HomeBody
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _HomeBody extends ConsumerStatefulWidget {
   const _HomeBody({required this.vehicles, required this.currency});
@@ -87,171 +85,202 @@ class _HomeBodyState extends ConsumerState<_HomeBody> {
     ref.invalidate(expiringSoonProvider);
     ref.invalidate(allServiceLogsProvider);
   }
+
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    
     final monthlySpendAsync = ref.watch(currentMonthFuelSpendProvider);
     final yearlySpendAsync = ref.watch(currentYearTotalSpendProvider);
     final expiringSoonAsync = ref.watch(expiringSoonProvider);
     final serviceLogsAsync = ref.watch(allServiceLogsProvider);
-    final currency = widget.currency;
 
     return RefreshIndicator(
       onRefresh: _refresh,
-      color: AppColors.primaryBlue,
-      child: ListView(
-        padding: const EdgeInsets.only(bottom: 100),
-        children: [
-          const SizedBox(height: AppSpacing.md),
-
-          // ── Stats row ──────────────────────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-            child: Row(
-              children: [
-                Expanded(
-                  child: StatCard(
-                    label: 'Vehicles',
-                    value: widget.vehicles.length.toString(),
-                    icon: Icons.directions_car_rounded,
-                    iconColor: AppColors.primaryBlue,
-                    onTap: () => context.go(AppRoutes.vehicles),
-                  ),
+      color: cs.primary,
+      edgeOffset: 100,
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          // ── Header / Greeting ──────────────────────────────────────────────
+          SliverAppBar(
+            expandedHeight: 140,
+            floating: false,
+            pinned: true,
+            elevation: 0,
+            backgroundColor: cs.surface,
+            flexibleSpace: FlexibleSpaceBar(
+              centerTitle: false,
+              titlePadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              title: Text(
+                'Dashboard',
+                style: tt.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -1,
+                  color: cs.onSurface,
                 ),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: monthlySpendAsync.when(
+              ),
+            ),
+            actions: [
+              _AlertsBadge(ref: ref),
+              const SizedBox(width: 16),
+            ],
+          ),
+
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Good Morning!',
+                    style: tt.bodyMedium?.copyWith(
+                      color: cs.onSurfaceVariant,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // ── Main Stats ─────────────────────────────────────────────
+                  Row(
+                    children: [
+                      Expanded(
+                        child: StatCard(
+                          label: 'GARAGE',
+                          value: '${widget.vehicles.length} Vehicles',
+                          icon: Icons.directions_car_rounded,
+                          iconColor: AppColors.primaryBlue,
+                          onTap: () => context.go(AppRoutes.vehicles),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: monthlySpendAsync.when(
+                          loading: () => const SkeletonCard(height: 90),
+                          error: (_, __) => const SizedBox.shrink(),
+                          data: (spend) => StatCard(
+                            label: 'FUEL THIS MONTH',
+                            value: CurrencyFormatter.formatCompact(spend, widget.currency),
+                            icon: Icons.local_gas_station_rounded,
+                            iconColor: AppColors.fuelPetrol,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  yearlySpendAsync.when(
                     loading: () => const SkeletonCard(height: 90),
                     error: (_, __) => const SizedBox.shrink(),
                     data: (spend) => StatCard(
-                      label: 'Fuel This Month',
-                      value: CurrencyFormatter.formatCompact(spend, currency),
-                      icon: Icons.local_gas_station_rounded,
-                      iconColor: AppColors.fuelPetrol,
+                      label: 'TOTAL EXPENDITURE 2024',
+                      value: CurrencyFormatter.format(spend, widget.currency),
+                      icon: Icons.account_balance_wallet_rounded,
+                      iconColor: AppColors.success,
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
 
-          const SizedBox(height: AppSpacing.sm),
+                  const SizedBox(height: 32),
 
-          // ── Yearly spend ───────────────────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-            child: yearlySpendAsync.when(
-              loading: () => const SkeletonCard(height: 80),
-              error: (_, __) => const SizedBox.shrink(),
-              data: (spend) => StatCard(
-                label: 'Total Spend This Year',
-                value: CurrencyFormatter.format(spend, currency),
-                icon: Icons.account_balance_wallet_rounded,
-                iconColor: AppColors.success,
+                  // ── Quick Actions ──────────────────────────────────────────
+                  Text(
+                    'Quick Actions',
+                    style: tt.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.2,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      _QuickAction(
+                        icon: Icons.local_gas_station_rounded,
+                        label: 'Fuel',
+                        color: AppColors.fuelPetrol,
+                        onTap: () => context.push(AppRoutes.fuelLogAdd),
+                      ),
+                      const SizedBox(width: 12),
+                      _QuickAction(
+                        icon: Icons.build_rounded,
+                        label: 'Service',
+                        color: AppColors.info,
+                        onTap: () => context.push(AppRoutes.serviceLogAdd),
+                      ),
+                      const SizedBox(width: 12),
+                      _QuickAction(
+                        icon: Icons.receipt_long_rounded,
+                        label: 'Expense',
+                        color: AppColors.success,
+                        onTap: () => context.push(AppRoutes.expenseLogAdd),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 32),
+                ],
               ),
             ),
           ),
 
-          const SizedBox(height: AppSpacing.lg),
-
           // ── Expiring documents ─────────────────────────────────────────────
           expiringSoonAsync.when(
-            loading: () => const SkeletonListTile(),
-            error: (_, __) => const SizedBox.shrink(),
+            loading: () => const SliverToBoxAdapter(child: SkeletonListTile()),
+            error: (_, __) => const SliverToBoxAdapter(child: SizedBox.shrink()),
             data: (docs) {
-              if (docs.isEmpty) return const SizedBox.shrink();
-              return _Section(
-                title: 'Expiring Documents',
-                icon: Icons.warning_amber_rounded,
-                iconColor: AppColors.warning,
-                children: docs.take(3).map((doc) => LogTile(
-                  icon: Icons.description_rounded,
-                  iconColor: AppColors.warning,
-                  title: doc.documentType,
-                  subtitle: DateFormatter.formatExpiry(doc.expiryDate),
-                  date: DateFormatter.format(doc.expiryDate),
-                  onTap: () {},
-                )).toList(),
+              if (docs.isEmpty) return const SliverToBoxAdapter(child: SizedBox.shrink());
+              return SliverList(
+                delegate: SliverChildListDelegate([
+                  _SectionHeader(title: 'Expiring Soon', icon: Icons.warning_amber_rounded, color: AppColors.warning),
+                  ...docs.take(3).map((doc) => LogTile(
+                    icon: Icons.description_rounded,
+                    iconColor: AppColors.warning,
+                    title: doc.documentType,
+                    subtitle: DateFormatter.formatExpiry(doc.expiryDate),
+                    date: DateFormatter.format(doc.expiryDate),
+                    onTap: () {},
+                  )),
+                  const SizedBox(height: 16),
+                ]),
               );
             },
           ),
 
           // ── Upcoming services ──────────────────────────────────────────────
           serviceLogsAsync.when(
-            loading: () => const SkeletonListTile(),
-            error: (_, __) => const SizedBox.shrink(),
+            loading: () => const SliverToBoxAdapter(child: SkeletonListTile()),
+            error: (_, __) => const SliverToBoxAdapter(child: SizedBox.shrink()),
             data: (logs) {
               final upcoming = logs.where((l) {
                 if (l.nextDueDate == null) return false;
                 return DateFormatter.daysUntil(l.nextDueDate!) <= 30;
               }).take(3).toList();
-              if (upcoming.isEmpty) return const SizedBox.shrink();
-              return _Section(
-                title: 'Upcoming Services',
-                icon: Icons.build_rounded,
-                iconColor: AppColors.info,
-                children: upcoming.map((log) => LogTile(
-                  icon: Icons.build_rounded,
-                  iconColor: AppColors.info,
-                  title: log.serviceType,
-                  subtitle: log.garageName ?? 'Service due',
-                  date: log.nextDueDate != null
-                      ? DateFormatter.format(log.nextDueDate!)
-                      : '',
-                  onTap: () {},
-                )).toList(),
+              if (upcoming.isEmpty) return const SliverToBoxAdapter(child: SizedBox.shrink());
+              return SliverList(
+                delegate: SliverChildListDelegate([
+                  _SectionHeader(title: 'Upcoming Service', icon: Icons.build_rounded, color: AppColors.info),
+                  ...upcoming.map((log) => LogTile(
+                    icon: Icons.build_rounded,
+                    iconColor: AppColors.info,
+                    title: log.serviceType,
+                    subtitle: log.garageName ?? 'Service due',
+                    date: log.nextDueDate != null ? DateFormatter.format(log.nextDueDate!) : '',
+                    onTap: () {},
+                  )),
+                  const SizedBox(height: 100), // Space for floating nav
+                ]),
               );
             },
           ),
-
-          const SizedBox(height: AppSpacing.lg),
-
-          // ── Quick add buttons ──────────────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-            child: Text(
-              'Quick Add',
-              style: AppTextStyles.titleSmall.copyWith(
-                color: AppColors.textSecondaryDark,
-              ),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-            child: Row(
-              children: [
-                _QuickAddButton(
-                  icon: Icons.local_gas_station_rounded,
-                  label: 'Fuel',
-                  color: AppColors.fuelPetrol,
-                  onTap: () => context.push(AppRoutes.fuelLogAdd),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                _QuickAddButton(
-                  icon: Icons.build_rounded,
-                  label: 'Service',
-                  color: AppColors.info,
-                  onTap: () => context.push(AppRoutes.serviceLogAdd),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                _QuickAddButton(
-                  icon: Icons.receipt_long_rounded,
-                  label: 'Expense',
-                  color: AppColors.success,
-                  onTap: () => context.push(AppRoutes.expenseLogAdd),
-                ),
-              ],
-            ),
-          ),
+          
+          if (!expiringSoonAsync.hasValue && !serviceLogsAsync.hasValue)
+            const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// _AlertsBadge
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _AlertsBadge extends ConsumerWidget {
   const _AlertsBadge({required this.ref});
@@ -261,94 +290,79 @@ class _AlertsBadge extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final expiring = ref.watch(expiringSoonProvider).valueOrNull ?? [];
     final count = expiring.length;
+    final cs = Theme.of(context).colorScheme;
 
-    return Stack(
-      children: [
-        IconButton(
-          icon: const Icon(Icons.notifications_rounded),
-          onPressed: () => context.push(AppRoutes.reminders),
-        ),
-        if (count > 0)
-          Positioned(
-            right: 8,
-            top: 8,
-            child: Container(
-              width: 16,
-              height: 16,
-              decoration: const BoxDecoration(
-                color: AppColors.error,
-                shape: BoxShape.circle,
-              ),
-              child: Center(
+    return Center(
+      child: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: cs.surfaceContainerHighest.withAlpha(100),
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              icon: Icon(Icons.notifications_none_rounded, color: cs.onSurface, size: 22),
+              onPressed: () => context.push(AppRoutes.reminders),
+            ),
+          ),
+          if (count > 0)
+            Positioned(
+              right: 4,
+              top: 4,
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: const BoxDecoration(
+                  color: AppColors.error,
+                  shape: BoxShape.circle,
+                ),
+                constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
                 child: Text(
                   count > 9 ? '9+' : count.toString(),
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 9,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 8,
+                    fontWeight: FontWeight.w900,
                   ),
+                  textAlign: TextAlign.center,
                 ),
               ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// _Section
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _Section extends StatelessWidget {
-  const _Section({
-    required this.title,
-    required this.icon,
-    required this.iconColor,
-    required this.children,
-  });
-
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.title, required this.icon, required this.color});
   final String title;
   final IconData icon;
-  final Color iconColor;
-  final List<Widget> children;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.sm,
+    final tt = Theme.of(context).textTheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 8),
+          Text(
+            title,
+            style: tt.titleSmall?.copyWith(
+              fontWeight: FontWeight.w800,
+              fontSize: 13,
+            ),
           ),
-          child: Row(
-            children: [
-              Icon(icon, size: 18, color: iconColor),
-              const SizedBox(width: AppSpacing.xs),
-              Text(
-                title,
-                style: AppTextStyles.titleSmall.copyWith(
-                  color: AppColors.textPrimaryDark,
-                ),
-              ),
-            ],
-          ),
-        ),
-        ...children,
-        const SizedBox(height: AppSpacing.sm),
-      ],
+        ],
+      ),
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// _QuickAddButton
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _QuickAddButton extends StatelessWidget {
-  const _QuickAddButton({
+class _QuickAction extends StatelessWidget {
+  const _QuickAction({
     required this.icon,
     required this.label,
     required this.color,
@@ -362,24 +376,37 @@ class _QuickAddButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    
     return Expanded(
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+          padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
-            color: color.withAlpha(25),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: color.withAlpha(60)),
+            color: cs.surface,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: cs.outline.withAlpha(20)),
           ),
           child: Column(
             children: [
-              Icon(icon, color: color, size: 24),
-              const SizedBox(height: AppSpacing.xs),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: color.withAlpha(20),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: color, size: 20),
+              ),
+              const SizedBox(height: 8),
               Text(
                 label,
-                style: AppTextStyles.labelSmall.copyWith(color: color),
+                style: tt.labelSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: cs.onSurface,
+                ),
               ),
             ],
           ),
