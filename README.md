@@ -312,4 +312,4 @@ AutoLog is a personal productivity and vehicle management utility application cr
 
 # ⭐ Support
 
-If you like the project, consider starring the repository and sharing feedback.
+If you like the project, consider starring the repository and sharing feedback..
