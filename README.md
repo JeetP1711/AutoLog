@@ -2,6 +2,7 @@
 
 > **Track Every Mile**
 
+
 AutoLog is a premium offline-first Flutter application designed to help users manage and track all vehicle-related records in one place.
 Built with simplicity, privacy, and practicality in mind, AutoLog provides a clean and modern experience for tracking fuel logs, services, expenses, vehicle documents, analytics, and maintenance reminders.
 
